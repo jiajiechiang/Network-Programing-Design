@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Socket 網路通訊中階教學：6 大進階實戰範例</title>
+    <style>
+        :root {
+            --primary-color: #4a235a; /* Deep Purple */
+            --secondary-color: #8e44ad; /* Amethyst */
+            --accent-color: #f1c40f; /* Yellow */
+            --bg-color: #f4f6f7;
+            --text-color: #2c3e50;
+            --code-bg: #282c34;
+            --code-color: #abb2bf;
+            --border-color: #d7bde2;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            border-bottom: 5px solid var(--secondary-color);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        header p {
+            color: #d7bde2;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .demo-badge {
+            background-color: var(--secondary-color);
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            margin-right: 1rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            background-color: #f5eef8;
+            color: #512e5f;
+            padding: 1.5rem;
+            border-radius: 6px;
+            border-left: 6px solid var(--secondary-color);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .file-header {
+            background-color: #1a1a1a;
+            color: #d4d4d4;
+            padding: 0.5rem 1rem;
+            font-family: monospace;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #333;
+            display: inline-block;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 1.5rem;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #ebdef0;
+            color: #76448a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 1em;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Syntax Highlighting */
+        .kw { color: #c678dd; font-weight: bold; } /* keyword */
+        .str { color: #98c379; } /* string */
+        .cmt { color: #7f848e; font-style: italic; } /* comment */
+        .fn { color: #61afef; } /* function */
+        .num { color: #d19a66; } /* number */
+        .cls { color: #e5c07b; font-style: italic; } /* class */
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Python Socket 網路通訊中階教學</h1>
+    <p>突破單點限制：多執行緒、多工 I/O 與自訂通訊協定</p>
+</header>
+
+<div class="container">
+
+    <div class="alert">
+        <strong>中階 Socket 通訊挑戰：</strong><br>
+        在基礎篇中，我們的伺服器一次只能服務「一個」客戶端。在中階篇，我們將解決真實世界的網路難題：<br>
+        1. <strong>並行處理</strong>：讓伺服器同時服務多個客戶端 (Threading / Select)。<br>
+        2. <strong>資料邊界 (TCP 黏包)</strong>：TCP 是串流協定，我們需要自訂長度標頭來確保資料完整性。<br>
+        3. <strong>廣播與安全</strong>：實作 UDP 廣播機制以及 SSL/TLS 基礎加密。
+    </div>
+
+    <!-- DEMO 1 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 1</span> 超時設定與非阻塞 (Timeout)</h2>
+        <p>實務上的網路連線常常會斷線或卡住。我們不能讓程式永遠等下去，必須設定 <code>settimeout()</code> 讓 Socket 具備超時中斷的能力。</p>
+        
+        <div class="file-header">tcp_timeout_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+PORT <span class="op">=</span> <span class="num">8888</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> s:
+    <span class="cmt"># 設定超時時間為 3 秒。如果 3 秒內連線或接收不到資料，將引發 socket.timeout 例外</span>
+    s.settimeout(<span class="num">3.0</span>)
+    
+    <span class="kw">try</span>:
+        s.connect((HOST, PORT))
+        s.sendall(<span class="str">b"Hello"</span>)
+        
+        <span class="cmt"># 若伺服器卡住不回應，3秒後會跳入 except 區塊</span>
+        data <span class="op">=</span> s.recv(<span class="num">1024</span>)
+        <span class="kw">print</span>(<span class="str">"收到資料："</span>, data)
+        
+    <span class="kw">except</span> socket.timeout:
+        <span class="kw">print</span>(<span class="str">"錯誤：伺服器回應超時！請檢查網路狀態。"</span>)
+    <span class="kw">except</span> ConnectionRefusedError:
+        <span class="kw">print</span>(<span class="str">"錯誤：連線被拒，伺服器可能未啟動。"</span>)</code></pre>
+    </div>
+
+    <!-- DEMO 2 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 2</span> 多執行緒伺服器 (Multithreaded Server)</h2>
+        <p>為了解決伺服器一次只能服務一個客戶端的問題，每當有新客戶端連入 <code>accept()</code> 時，我們就開一個新的 <strong>執行緒 (Thread)</strong> 給他，主程式繼續等待下一個連線。</p>
+
+        <div class="file-header">threaded_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> threading
+
+<span class="kw">def</span> <span class="fn">handle_client</span>(conn, addr):
+    <span class="kw">print</span>(f<span class="str">"[新連線] {addr} 進入伺服器。"</span>)
+    <span class="kw">with</span> conn:
+        <span class="kw">while True</span>:
+            data <span class="op">=</span> conn.recv(<span class="num">1024</span>)
+            <span class="kw">if not</span> data:
+                <span class="kw">break</span>
+            <span class="cmt"># 回聲功能</span>
+            conn.sendall(data)
+    <span class="kw">print</span>(f<span class="str">"[斷線] {addr} 已離開。"</span>)
+
+<span class="kw">def</span> <span class="fn">start_server</span>():
+    HOST, PORT <span class="op">=</span> <span class="str">'127.0.0.1'</span>, <span class="num">9000</span>
+    <span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> server:
+        server.bind((HOST, PORT))
+        server.listen()
+        <span class="kw">print</span>(f<span class="str">"多執行緒伺服器啟動，監聽 {PORT}..."</span>)
+        
+        <span class="kw">while True</span>:
+            <span class="cmt"># 接受新連線</span>
+            conn, addr <span class="op">=</span> server.accept()
+            <span class="cmt"># 建立並啟動新的執行緒來處理這個客戶端</span>
+            thread <span class="op">=</span> threading.Thread(target<span class="op">=</span>handle_client, args<span class="op">=</span>(conn, addr))
+            thread.start()
+            <span class="kw">print</span>(f<span class="str">"[活躍連線數] {threading.active_count() - 1}"</span>)
+
+<span class="kw">if</span> __name__ <span class="op">==</span> <span class="str">"__main__"</span>:
+    start_server()</code></pre>
+    </div>
+
+    <!-- DEMO 3 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 3</span> I/O 多工處理：使用 select 打造聊天室</h2>
+        <p>除了多執行緒，作業系統提供了更輕量的 <code>select</code> 模組，讓單一執行緒能夠「同時監視」多個 Socket 的狀態（誰傳資料來了就去讀誰），非常適合開發廣播型的群組聊天室。</p>
+
+        <div class="file-header">select_chat_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> select
+
+HOST, PORT <span class="op">=</span> <span class="str">'127.0.0.1'</span>, <span class="num">9090</span>
+server <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((HOST, PORT))
+server.listen()
+
+<span class="cmt"># 存放所有連線的 Socket，包含伺服器本身</span>
+sockets_list <span class="op">=</span> [server]
+
+<span class="kw">print</span>(<span class="str">"Select 聊天室伺服器啟動..."</span>)
+<span class="kw">while True</span>:
+    <span class="cmt"># select 會卡住，直到 sockets_list 中有人發生讀取事件</span>
+    read_sockets, _, _ <span class="op">=</span> select.select(sockets_list, [], [])
+    
+    <span class="kw">for</span> notified_socket <span class="kw">in</span> read_sockets:
+        <span class="cmt"># 如果是伺服器本身有事件，代表有新客戶端連入</span>
+        <span class="kw">if</span> notified_socket <span class="op">==</span> server:
+            client_socket, client_addr <span class="op">=</span> server.accept()
+            sockets_list.append(client_socket)
+            <span class="kw">print</span>(f<span class="str">"接受新連線：{client_addr}"</span>)
+        
+        <span class="cmt"># 如果是客戶端有事件，代表他傳送了訊息</span>
+        <span class="kw">else</span>:
+            <span class="kw">try</span>:
+                message <span class="op">=</span> notified_socket.recv(<span class="num">1024</span>)
+                <span class="kw">if not</span> message:
+                    sockets_list.remove(notified_socket)
+                    <span class="kw">continue</span>
+                
+                <span class="cmt"># 將訊息廣播給其他所有人</span>
+                <span class="kw">for</span> client <span class="kw">in</span> sockets_list:
+                    <span class="kw">if</span> client <span class="op">!=</span> server <span class="kw">and</span> client <span class="op">!=</span> notified_socket:
+                        client.send(message)
+            <span class="kw">except</span>:
+                sockets_list.remove(notified_socket)</code></pre>
+    </div>
+
+    <!-- DEMO 4 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 4</span> 解決 TCP 黏包：自訂資料長度標頭 (struct)</h2>
+        <p>TCP 是「資料流 (Stream)」，如果連續發送多筆資料，接收端可能會把兩筆資料黏在一起讀出來（黏包）。解決方案是在每筆資料前面加上 <strong>固定長度的標頭 (Header)</strong>，宣告接下來的資料有多長。</p>
+
+        <div class="file-header">custom_protocol.py</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> struct
+
+<span class="kw">def</span> <span class="fn">send_msg</span>(sock, msg_bytes):
+    <span class="cmt"># 使用 struct.pack 打包長度，'&gt;I' 代表大端序無號整數 (固定 4 bytes)</span>
+    msg_length <span class="op">=</span> len(msg_bytes)
+    header <span class="op">=</span> struct.pack(<span class="str">'&gt;I'</span>, msg_length)
+    <span class="cmt"># 先傳標頭，再傳實際內容</span>
+    sock.sendall(header <span class="op">+</span> msg_bytes)
+
+<span class="kw">def</span> <span class="fn">recv_msg</span>(sock):
+    <span class="cmt"># 先讀取固定的 4 bytes 標頭</span>
+    raw_msglen <span class="op">=</span> recv_all(sock, <span class="num">4</span>)
+    <span class="kw">if not</span> raw_msglen:
+        <span class="kw">return None</span>
+    
+    <span class="cmt"># 解開標頭，取得實際資料長度</span>
+    msglen <span class="op">=</span> struct.unpack(<span class="str">'&gt;I'</span>, raw_msglen)[<span class="num">0</span>]
+    <span class="cmt"># 依照長度讀取完整的內容</span>
+    <span class="kw">return</span> recv_all(sock, msglen)
+
+<span class="kw">def</span> <span class="fn">recv_all</span>(sock, n):
+    <span class="cmt"># 確保讀滿 n 個 bytes 才回傳</span>
+    data <span class="op">=</span> <span class="str">bytearray()</span>
+    <span class="kw">while</span> len(data) <span class="op">&lt;</span> n:
+        packet <span class="op">=</span> sock.recv(n <span class="op">-</span> len(data))
+        <span class="kw">if not</span> packet:
+            <span class="kw">return None</span>
+        data.extend(packet)
+    <span class="kw">return</span> data</code></pre>
+    </div>
+
+    <!-- DEMO 5 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 5</span> UDP 廣播 (Broadcast)</h2>
+        <p>想在同一個區域網路 (LAN) 內呼叫所有人？可以使用 UDP 廣播，將資料傳送到 <code>&lt;broadcast&gt;</code>，網域內所有監聽該 Port 的機器都能收到。</p>
+
+        <div class="file-header">udp_broadcast.py</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> time
+
+<span class="cmt"># -- 廣播發送端 --</span>
+<span class="kw">def</span> <span class="fn">broadcast_sender</span>():
+    <span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM) <span class="kw">as</span> s:
+        <span class="cmt"># 開啟 Socket 的廣播權限</span>
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, <span class="num">1</span>)
+        
+        <span class="kw">while True</span>:
+            msg <span class="op">=</span> <span class="str">"【廣播】伺服器上線公告！"</span>
+            <span class="cmt"># 傳送到廣播位址與指定 Port</span>
+            s.sendto(msg.encode(), (<span class="str">'&lt;broadcast&gt;'</span>, <span class="num">37020</span>))
+            <span class="kw">print</span>(<span class="str">"已發送廣播..."</span>)
+            time.sleep(<span class="num">5</span>)
+
+<span class="cmt"># -- 廣播接收端 --</span>
+<span class="kw">def</span> <span class="fn">broadcast_receiver</span>():
+    <span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM) <span class="kw">as</span> s:
+        <span class="cmt"># 允許重複使用 Port</span>
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="num">1</span>)
+        <span class="cmt"># 綁定所有網卡 ('') 監聽該 Port</span>
+        s.bind((<span class="str">''</span>, <span class="num">37020</span>))
+        
+        <span class="kw">print</span>(<span class="str">"等待廣播訊息..."</span>)
+        <span class="kw">while True</span>:
+            data, addr <span class="op">=</span> s.recvfrom(<span class="num">1024</span>)
+            <span class="kw">print</span>(f<span class="str">"收到來自 {addr} 的廣播：{data.decode()}"</span>)</code></pre>
+    </div>
+
+    <!-- DEMO 6 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 6</span> SSL/TLS 安全加密通訊 (Secure Sockets)</h2>
+        <p>明文傳輸非常危險。Python 內建的 <code>ssl</code> 模組可以幫原本的 Socket 加上一層防護罩，實作類似 HTTPS 的加密傳輸。</p>
+
+        <div class="file-header">ssl_secure_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> ssl
+
+HOST <span class="op">=</span> <span class="str">'www.python.org'</span>
+PORT <span class="op">=</span> <span class="num">443</span>  <span class="cmt"># HTTPS 預設 Port</span>
+
+<span class="cmt"># 1. 建立預設的安全上下文環境</span>
+context <span class="op">=</span> ssl.create_default_context()
+
+<span class="kw">with</span> socket.create_connection((HOST, PORT)) <span class="kw">as</span> raw_socket:
+    <span class="cmt"># 2. 將普通的 Socket 包裝成 SSL Socket</span>
+    <span class="kw">with</span> context.wrap_socket(raw_socket, server_hostname<span class="op">=</span>HOST) <span class="kw">as</span> secure_socket:
+        
+        <span class="kw">print</span>(f<span class="str">"加密連線成功！使用的協定："</span>, secure_socket.version())
+        
+        <span class="cmt"># 透過加密通道發送 HTTP 請求</span>
+        request <span class="op">=</span> f<span class="str">"GET / HTTP/1.1\r\nHost: {HOST}\r\nConnection: close\r\n\r\n"</span>
+        secure_socket.sendall(request.encode(<span class="str">'utf-8'</span>))
+        
+        <span class="cmt"># 接收安全的回應資料</span>
+        response <span class="op">=</span> secure_socket.recv(<span class="num">1024</span>)
+        <span class="kw">print</span>(response.decode(<span class="str">'utf-8'</span>)[:<span class="num">200</span>]) <span class="cmt"># 僅印出前200字元</span></code></pre>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Socket 網路通訊基礎：6 大實戰範例教學</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50; /* Dark Blue Gray */
+            --secondary-color: #3498db; /* Bright Blue */
+            --accent-color: #e74c3c; /* Red */
+            --bg-color: #f8f9fa;
+            --text-color: #333333;
+            --code-bg: #282c34; /* Atom One Dark */
+            --code-color: #abb2bf;
+            --border-color: #e0e0e0;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            border-bottom: 5px solid var(--secondary-color);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        header p {
+            color: #bdc3c7;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .demo-badge {
+            background-color: var(--secondary-color);
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            margin-right: 1rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            background-color: #e8f4f8;
+            color: #1f618d;
+            padding: 1.5rem;
+            border-radius: 6px;
+            border-left: 6px solid var(--secondary-color);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .file-header {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 0.5rem 1rem;
+            font-family: monospace;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #333;
+            display: inline-block;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 1.5rem;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #eaeded;
+            color: #c0392b;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 1em;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Syntax Highlighting */
+        .kw { color: #c678dd; font-weight: bold; } /* keyword */
+        .str { color: #98c379; } /* string */
+        .cmt { color: #7f848e; font-style: italic; } /* comment */
+        .fn { color: #61afef; } /* function */
+        .num { color: #d19a66; } /* number */
+        .cls { color: #e5c07b; font-style: italic; } /* class */
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Python Socket 網路通訊基礎教學</h1>
+    <p>點對點資料傳輸：TCP 與 UDP 的 6 大實戰演練</p>
+</header>
+
+<div class="container">
+
+    <div class="alert">
+        <strong>什麼是 Socket？</strong><br>
+        Socket (通訊端點) 是作業系統提供的介面，讓程式能夠透過網路發送或接收資料。學習 Socket 是理解所有上層網路應用 (如 HTTP, FTP, 遊戲連線) 的底層基礎。<br><br>
+        <strong>兩大核心協定：</strong><br>
+        1. <strong>TCP (傳輸控制協定)</strong>：需要「連線建立 (三向交握)」，保證資料正確且按順序到達，適合檔案傳輸、網頁。<br>
+        2. <strong>UDP (使用者資料包協定)</strong>：不需要連線，直接「丟」資料，速度快但不保證送達，適合即時語音、線上遊戲。
+    </div>
+
+    <!-- DEMO 1 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 1</span> 建立 TCP 伺服器 (Server)</h2>
+        <p>TCP 伺服器必須經過 <code>bind()</code> 綁定位址、<code>listen()</code> 開始監聽，並透過 <code>accept()</code> 接受客戶端的連線請求。</p>
+        
+        <div class="file-header">tcp_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>  <span class="cmt"># 本地端 IP</span>
+PORT <span class="op">=</span> <span class="num">8888</span>         <span class="cmt"># 監聽的 Port 號</span>
+
+<span class="cmt"># AF_INET = IPv4, SOCK_STREAM = TCP 協定</span>
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> server_sock:
+    server_sock.bind((HOST, PORT))
+    server_sock.listen()
+    <span class="kw">print</span>(f<span class="str">"TCP 伺服器啟動，等待 {HOST}:{PORT} 的連線..."</span>)
+    
+    <span class="cmt"># accept() 會阻塞程式，直到有客戶端連線</span>
+    conn, addr <span class="op">=</span> server_sock.accept()
+    <span class="kw">with</span> conn:
+        <span class="kw">print</span>(f<span class="str">"已接受來自 {addr} 的連線"</span>)
+        
+        <span class="cmt"># 接收資料 (一次最多接收 1024 bytes)</span>
+        data <span class="op">=</span> conn.recv(<span class="num">1024</span>)
+        <span class="kw">print</span>(<span class="str">"收到客戶端訊息："</span>, data.decode(<span class="str">'utf-8'</span>))
+        
+        <span class="cmt"># 回傳訊息給客戶端 (必須編碼成 bytes)</span>
+        conn.sendall(<span class="str">"哈囉！TCP 伺服器已收到你的訊息。"</span>.encode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 2 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 2</span> 建立 TCP 客戶端 (Client)</h2>
+        <p>TCP 客戶端比較簡單，建立 Socket 後，直接呼叫 <code>connect()</code> 連向伺服器的 IP 與 Port。</p>
+
+        <div class="file-header">tcp_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>  <span class="cmt"># 目標伺服器 IP</span>
+PORT <span class="op">=</span> <span class="num">8888</span>         <span class="cmt"># 目標伺服器 Port</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> client_sock:
+    <span class="cmt"># 發起連線</span>
+    client_sock.connect((HOST, PORT))
+    
+    <span class="cmt"># 發送訊息給伺服器</span>
+    message <span class="op">=</span> <span class="str">"你好，這是一條測試訊息！"</span>
+    client_sock.sendall(message.encode(<span class="str">'utf-8'</span>))
+    
+    <span class="cmt"># 接收伺服器的回覆</span>
+    data <span class="op">=</span> client_sock.recv(<span class="num">1024</span>)
+    <span class="kw">print</span>(<span class="str">"收到伺服器回傳："</span>, data.decode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 3 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 3</span> 建立 UDP 伺服器 (Server)</h2>
+        <p>UDP 不需要建立連線通道，伺服器 <code>bind()</code> 綁定位址後，直接用 <code>recvfrom()</code> 接收任何丟過來的資料包。</p>
+
+        <div class="file-header">udp_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+PORT <span class="op">=</span> <span class="num">9999</span>
+
+<span class="cmt"># SOCK_DGRAM = UDP 協定</span>
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM) <span class="kw">as</span> server_sock:
+    server_sock.bind((HOST, PORT))
+    <span class="kw">print</span>(f<span class="str">"UDP 伺服器啟動，正在 {HOST}:{PORT} 接收封包..."</span>)
+    
+    <span class="cmt"># recvfrom 會回傳資料本身，以及發送者的位址 (IP, Port)</span>
+    data, client_addr <span class="op">=</span> server_sock.recvfrom(<span class="num">1024</span>)
+    <span class="kw">print</span>(f<span class="str">"收到來自 {client_addr} 的封包："</span>, data.decode(<span class="str">'utf-8'</span>))
+    
+    <span class="cmt"># 針對該位址回傳確認訊息</span>
+    reply <span class="op">=</span> <span class="str">"UDP 伺服器已成功接收封包！"</span>
+    server_sock.sendto(reply.encode(<span class="str">'utf-8'</span>), client_addr)</code></pre>
+    </div>
+
+    <!-- DEMO 4 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 4</span> 建立 UDP 客戶端 (Client)</h2>
+        <p>UDP 客戶端完全不需要 <code>connect()</code>，準備好資料後，指定目標 IP 與 Port，用 <code>sendto()</code> 像射飛鏢一樣把資料丟出去。</p>
+
+        <div class="file-header">udp_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+SERVER_HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+SERVER_PORT <span class="op">=</span> <span class="num">9999</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM) <span class="kw">as</span> client_sock:
+    <span class="cmt"># 直接將資料發送至目標位址</span>
+    message <span class="op">=</span> <span class="str">"這是一顆 UDP 飛彈資料包！"</span>
+    client_sock.sendto(message.encode(<span class="str">'utf-8'</span>), (SERVER_HOST, SERVER_PORT))
+    
+    <span class="cmt"># 接收伺服器的回覆</span>
+    data, addr <span class="op">=</span> client_sock.recvfrom(<span class="num">1024</span>)
+    <span class="kw">print</span>(f<span class="str">"收到伺服器 {addr} 回傳："</span>, data.decode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 5 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 5</span> TCP 連續通訊：Echo 伺服器</h2>
+        <p>實務上的伺服器不會只處理一次請求就關閉。我們加上 <code>while True</code> 迴圈，讓伺服器能持續與客戶端對話 (這裡示範收到什麼就回傳什麼的 Echo Server)。</p>
+
+        <div class="file-header">tcp_echo_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+PORT <span class="op">=</span> <span class="num">50000</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> s:
+    s.bind((HOST, PORT))
+    s.listen()
+    <span class="kw">print</span>(<span class="str">"Echo 伺服器啟動，等待連線..."</span>)
+    
+    conn, addr <span class="op">=</span> s.accept()
+    <span class="kw">with</span> conn:
+        <span class="kw">print</span>(f<span class="str">"客戶端 {addr} 已連線"</span>)
+        
+        <span class="cmt"># 持續接收該客戶端的資料</span>
+        <span class="kw">while True</span>:
+            data <span class="op">=</span> conn.recv(<span class="num">1024</span>)
+            <span class="cmt"># 若 data 為空，代表客戶端已主動斷線</span>
+            <span class="kw">if not</span> data:
+                <span class="kw">print</span>(<span class="str">"客戶端已斷線。"</span>)
+                <span class="kw">break</span>
+                
+            msg <span class="op">=</span> data.decode(<span class="str">'utf-8'</span>)
+            <span class="kw">print</span>(f<span class="str">"收到訊息: {msg}"</span>)
+            
+            <span class="cmt"># 將收到的訊息加上前綴後原封不動回傳 (Echo)</span>
+            reply <span class="op">=</span> f<span class="str">"[Echo]: {msg}"</span>
+            conn.sendall(reply.encode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 6 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 6</span> TCP 連續通訊：可持續輸入的客戶端</h2>
+        <p>搭配上面的 Echo 伺服器，客戶端也使用迴圈搭配 <code>input()</code>，讓使用者可以不斷輸入訊息發送給伺服器，直到輸入 <code>exit</code> 為止。</p>
+
+        <div class="file-header">tcp_interactive_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+PORT <span class="op">=</span> <span class="num">50000</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> s:
+    s.connect((HOST, PORT))
+    <span class="kw">print</span>(<span class="str">"已連線至 Echo 伺服器！(輸入 'exit' 離開)"</span>)
+    
+    <span class="kw">while True</span>:
+        <span class="cmt"># 等待使用者輸入</span>
+        msg <span class="op">=</span> input(<span class="str">"請輸入訊息 &gt; "</span>)
+        
+        <span class="kw">if</span> msg.lower() <span class="op">==</span> <span class="str">'exit'</span>:
+            <span class="kw">print</span>(<span class="str">"關閉連線。"</span>)
+            <span class="kw">break</span>
+            
+        <span class="cmt"># 發送訊息</span>
+        s.sendall(msg.encode(<span class="str">'utf-8'</span>))
+        
+        <span class="cmt"># 接收伺服器回覆</span>
+        data <span class="op">=</span> s.recv(<span class="num">1024</span>)
+        <span class="kw">print</span>(<span class="str">"伺服器回傳: "</span>, data.decode(<span class="str">'utf-8'</span>))</code></pre>
+        <p><strong>測試方法：</strong>請開啟兩個終端機 (Terminal)。先在第一個終端機執行 <code>tcp_echo_server.py</code>，再到第二個終端機執行 <code>tcp_interactive_client.py</code> 即可測試對話。</p>
+    </div>
+
+</div>
+
+</body>
+</html>

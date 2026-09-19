@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 網路通訊 Socket 基礎教學：6 大核心點對點實戰</title>
+    <style>
+        :root {
+            --primary-color: #0f4c81; /* Classic Blue */
+            --secondary-color: #1abc9c; /* Turquoise */
+            --accent-color: #e74c3c; /* Red */
+            --bg-color: #f0f3f4;
+            --text-color: #2c3e50;
+            --code-bg: #1e1e1e;
+            --code-color: #d4d4d4;
+            --border-color: #bdc3c7;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            border-bottom: 5px solid var(--secondary-color);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        header p {
+            color: #a9cce3;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .demo-badge {
+            background-color: var(--secondary-color);
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            margin-right: 1rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            background-color: #e8f6f3;
+            color: #0e6251;
+            padding: 1.5rem;
+            border-radius: 6px;
+            border-left: 6px solid var(--secondary-color);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .file-header {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 0.5rem 1rem;
+            font-family: monospace;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #1a252f;
+            display: inline-block;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 1.5rem;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #eaeded;
+            color: #c0392b;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 1em;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Syntax Highlighting */
+        .kw { color: #569cd6; font-weight: bold; } /* keyword */
+        .str { color: #ce9178; } /* string */
+        .cmt { color: #6a9955; font-style: italic; } /* comment */
+        .fn { color: #dcdcaa; } /* function */
+        .num { color: #b5cea8; } /* number */
+        .cls { color: #4ec9b0; font-style: italic; } /* class */
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Python Socket 網路通訊基礎</h1>
+    <p>底層協定解析：TCP 與 UDP 點對點連線的 6 大實戰</p>
+</header>
+
+<div class="container">
+
+    <div class="alert">
+        <strong>Socket 通訊核心觀念：</strong><br>
+        <code>socket</code> 是作業系統提供給應用程式的網路介面。通訊協定主要分為兩種：<br>
+        1. <strong>TCP (傳輸控制協定)</strong>：需要建立連線 (三向交握)，資料保證送達且順序正確，適合檔案傳輸與網頁連線。<br>
+        2. <strong>UDP (使用者資料包協定)</strong>：不需要建立連線，送出即不管，速度快但可能會掉包，適合即時影音串流或遊戲。
+    </div>
+
+    <!-- DEMO 1 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 1</span> TCP 伺服器 (Server)：監聽與接收</h2>
+        <p>伺服器的工作是綁定一個 IP 與 Port，接著開始「監聽 (listen)」，等待客戶端連線。連線後，透過 <code>accept()</code> 取得連線物件來收發資料。</p>
+        
+        <div class="file-header">tcp_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>  <span class="cmt"># 本地端 IP (Localhost)</span>
+PORT <span class="op">=</span> <span class="num">65432</span>        <span class="cmt"># 監聽的 Port 號 (建議大於 1024)</span>
+
+<span class="cmt"># 1. 建立 Socket 物件。AF_INET 代表 IPv4，SOCK_STREAM 代表 TCP 協定</span>
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> server_socket:
+    <span class="cmt"># 2. 綁定 IP 與 Port</span>
+    server_socket.bind((HOST, PORT))
+    
+    <span class="cmt"># 3. 開始監聽連線要求</span>
+    server_socket.listen()
+    <span class="kw">print</span>(f<span class="str">"伺服器啟動，正在監聽 {HOST}:{PORT}..."</span>)
+    
+    <span class="cmt"># 4. 接受客戶端連線 (程式會卡在這裡等待，直到有人連入)</span>
+    conn, addr <span class="op">=</span> server_socket.accept()
+    <span class="kw">with</span> conn:
+        <span class="kw">print</span>(f<span class="str">"已連線！客戶端位址："</span>, addr)
+        
+        <span class="cmt"># 5. 接收資料 (最多 1024 bytes)</span>
+        data <span class="op">=</span> conn.recv(<span class="num">1024</span>)
+        <span class="kw">print</span>(<span class="str">"收到客戶端訊息："</span>, data.decode(<span class="str">'utf-8'</span>))
+        
+        <span class="cmt"># 6. 回傳資料給客戶端 (需編碼為 bytes)</span>
+        conn.sendall(<span class="str">"哈囉！我是 TCP 伺服器，已收到你的訊息！"</span>.encode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 2 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 2</span> TCP 客戶端 (Client)：發送與接收</h2>
+        <p>客戶端不需要綁定 Port，只需知道伺服器的 IP 與 Port，呼叫 <code>connect()</code> 發起連線即可傳輸資料。</p>
+
+        <div class="file-header">tcp_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>  <span class="cmt"># 伺服器的 IP</span>
+PORT <span class="op">=</span> <span class="num">65432</span>        <span class="cmt"># 伺服器的 Port</span>
+
+<span class="cmt"># 1. 建立 TCP Socket</span>
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> client_socket:
+    <span class="cmt"># 2. 連線至伺服器</span>
+    client_socket.connect((HOST, PORT))
+    
+    <span class="cmt"># 3. 發送訊息 (將字串編碼轉換成 bytes 格式)</span>
+    message <span class="op">=</span> <span class="str">"你好！我是 TCP 客戶端。"</span>
+    client_socket.sendall(message.encode(<span class="str">'utf-8'</span>))
+    
+    <span class="cmt"># 4. 接收伺服器回傳的訊息</span>
+    data <span class="op">=</span> client_socket.recv(<span class="num">1024</span>)
+
+<span class="kw">print</span>(<span class="str">"收到伺服器回傳："</span>, data.decode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 3 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 3</span> UDP 伺服器：無連線接收</h2>
+        <p>UDP 不需要 <code>listen()</code> 也不需要 <code>accept()</code>。綁定 Port 後，直接透過 <code>recvfrom()</code> 等待任何人丟資料過來。</p>
+
+        <div class="file-header">udp_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+PORT <span class="op">=</span> <span class="num">9999</span>
+
+<span class="cmt"># 1. 建立 Socket 物件。SOCK_DGRAM 代表 UDP 協定</span>
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM) <span class="kw">as</span> server_socket:
+    <span class="cmt"># 2. 綁定 IP 與 Port</span>
+    server_socket.bind((HOST, PORT))
+    <span class="kw">print</span>(f<span class="str">"UDP 伺服器啟動，正在 {HOST}:{PORT} 等待資料..."</span>)
+    
+    <span class="cmt"># 3. 直接接收資料，recvfrom 會同時回傳資料與發送者的地址 (addr)</span>
+    data, addr <span class="op">=</span> server_socket.recvfrom(<span class="num">1024</span>)
+    <span class="kw">print</span>(f<span class="str">"收到來自 {addr} 的訊息："</span>, data.decode(<span class="str">'utf-8'</span>))
+    
+    <span class="cmt"># 4. 根據發送者的地址回傳訊息</span>
+    reply <span class="op">=</span> <span class="str">"UDP 伺服器已收到你的封包！"</span>
+    server_socket.sendto(reply.encode(<span class="str">'utf-8'</span>), addr)</code></pre>
+    </div>
+
+    <!-- DEMO 4 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 4</span> UDP 客戶端：直接發射資料包</h2>
+        <p>因為 UDP 不用建立連線，所以不需要 <code>connect()</code>，只要指定目標 IP 與 Port，就能使用 <code>sendto()</code> 將資料丟出去。</p>
+
+        <div class="file-header">udp_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+SERVER_HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+SERVER_PORT <span class="op">=</span> <span class="num">9999</span>
+
+<span class="cmt"># 1. 建立 UDP Socket</span>
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM) <span class="kw">as</span> client_socket:
+    <span class="cmt"># 2. 直接將訊息發送到指定的 IP 與 Port</span>
+    message <span class="op">=</span> <span class="str">"咻！這是一顆 UDP 資料包。"</span>
+    client_socket.sendto(message.encode(<span class="str">'utf-8'</span>), (SERVER_HOST, SERVER_PORT))
+    
+    <span class="cmt"># 3. 接收伺服器的回覆</span>
+    data, server_addr <span class="op">=</span> client_socket.recvfrom(<span class="num">1024</span>)
+
+<span class="kw">print</span>(f<span class="str">"收到伺服器 {server_addr} 回傳："</span>, data.decode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 5 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 5</span> TCP 連續通訊：簡易聊天室伺服器</h2>
+        <p>前面的範例都是「一問一答」後程式就結束了。實務上，我們會使用 <code>while True</code> 無窮迴圈來保持通訊不斷線。</p>
+
+        <div class="file-header">chat_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+PORT <span class="op">=</span> <span class="num">50000</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> s:
+    s.bind((HOST, PORT))
+    s.listen()
+    <span class="kw">print</span>(<span class="str">"聊天伺服器啟動，等待連線..."</span>)
+    
+    conn, addr <span class="op">=</span> s.accept()
+    <span class="kw">with</span> conn:
+        <span class="kw">print</span>(f<span class="str">"客戶端 {addr} 進入聊天室！"</span>)
+        
+        <span class="cmt"># 無窮迴圈保持對話</span>
+        <span class="kw">while True</span>:
+            <span class="cmt"># 接收客戶端訊息</span>
+            data <span class="op">=</span> conn.recv(<span class="num">1024</span>)
+            <span class="kw">if not</span> data:
+                <span class="kw">print</span>(<span class="str">"客戶端已斷線。"</span>)
+                <span class="kw">break</span> <span class="cmt"># 如果沒收到資料，代表對方斷線，跳出迴圈</span>
+                
+            <span class="kw">print</span>(f<span class="str">"Client: {data.decode('utf-8')}"</span>)
+            
+            <span class="cmt"># 伺服器輸入回覆</span>
+            reply <span class="op">=</span> input(<span class="str">"Server (你): "</span>)
+            conn.sendall(reply.encode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 6 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 6</span> TCP 連續通訊：簡易聊天室客戶端</h2>
+        <p>配合上方的聊天室伺服器，客戶端也使用無窮迴圈，實作「先發送、後接收」的輪替溝通機制。</p>
+
+        <div class="file-header">chat_client.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST <span class="op">=</span> <span class="str">'127.0.0.1'</span>
+PORT <span class="op">=</span> <span class="num">50000</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> s:
+    s.connect((HOST, PORT))
+    <span class="kw">print</span>(<span class="str">"已連線至聊天伺服器！輸入 'exit' 可離開。"</span>)
+    
+    <span class="kw">while True</span>:
+        <span class="cmt"># 客戶端輸入訊息</span>
+        msg <span class="op">=</span> input(<span class="str">"Client (你): "</span>)
+        <span class="kw">if</span> msg.lower() <span class="op">==</span> <span class="str">'exit'</span>:
+            <span class="kw">break</span>
+            
+        <span class="cmt"># 發送訊息</span>
+        s.sendall(msg.encode(<span class="str">'utf-8'</span>))
+        
+        <span class="cmt"># 接收伺服器回覆</span>
+        data <span class="op">=</span> s.recv(<span class="num">1024</span>)
+        <span class="kw">if not</span> data:
+            <span class="kw">print</span>(<span class="str">"伺服器已關閉連線。"</span>)
+            <span class="kw">break</span>
+            
+        <span class="kw">print</span>(f<span class="str">"Server: {data.decode('utf-8')}"</span>)</code></pre>
+        <p><strong>測試方法：</strong>請開啟兩個終端機 (Terminal)。先在第一個終端機執行 <code>chat_server.py</code>，再到第二個終端機執行 <code>chat_client.py</code>，即可開始互動對話！</p>
+    </div>
+
+</div>
+
+</body>
+</html>

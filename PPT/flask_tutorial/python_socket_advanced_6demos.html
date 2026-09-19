@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Socket 網路通訊進階教學：6 大底層魔王實戰</title>
+    <style>
+        :root {
+            --primary-color: #0d1117; /* GitHub Dark bg */
+            --secondary-color: #58a6ff; /* Neon Blue */
+            --accent-color: #8b949e; /* Gray */
+            --bg-color: #010409;
+            --text-color: #c9d1d9;
+            --code-bg: #161b22;
+            --code-color: #e6edf3;
+            --border-color: #30363d;
+            --card-bg: #0d1117;
+            --highlight: #2ea043; /* Green */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        header p {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .demo-badge {
+            background-color: var(--secondary-color);
+            color: #000;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            margin-right: 1rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        h3 {
+            color: var(--highlight);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            background-color: #161b22;
+            color: #8b949e;
+            padding: 1.5rem;
+            border-radius: 6px;
+            border-left: 6px solid var(--highlight);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .alert strong {
+            color: var(--highlight);
+        }
+
+        .file-header {
+            background-color: #010409;
+            color: #8b949e;
+            padding: 0.5rem 1rem;
+            font-family: monospace;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            display: inline-block;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 1.5rem;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            border: 1px solid var(--border-color);
+        }
+
+        code {
+            background-color: #1f2428;
+            color: #ff7b72;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 1em;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Syntax Highlighting (Dark Theme) */
+        .kw { color: #ff7b72; font-weight: bold; } /* keyword */
+        .str { color: #a5d6ff; } /* string */
+        .cmt { color: #8b949e; font-style: italic; } /* comment */
+        .fn { color: #d2a8ff; } /* function */
+        .num { color: #79c0ff; } /* number */
+        .cls { color: #ffa657; font-style: italic; } /* class */
+        .dec { color: #d2a8ff; } /* decorator */
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Python Socket 網路通訊進階教學</h1>
+    <p>深究作業系統底層：非阻塞 I/O、群播、HTTP 解析與原始 Socket</p>
+</header>
+
+<div class="container">
+
+    <div class="alert">
+        <strong>進階 Socket 通訊挑戰：</strong><br>
+        中階篇我們學會了多執行緒與 select。進階篇我們將直擊更底層的作業系統網路架構：<br>
+        1. <strong>高效能併發</strong>：使用 <code>selectors</code> 模組與 <code>asyncio</code> 打造現代化非阻塞伺服器。<br>
+        2. <strong>網路協定解析</strong>：完全不靠套件，手刻一個能被瀏覽器存取的 HTTP 網頁伺服器。<br>
+        3. <strong>特殊通訊方式</strong>：實作跨行程極速通訊 (Unix Domain Sockets) 與 UDP 群播 (Multicast)。<br>
+        4. <strong>封包側錄</strong>：使用 Raw Sockets 捕捉流經網卡的底層 IP 封包 (需管理員權限)。
+    </div>
+
+    <!-- DEMO 1 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 1</span> 高效能非阻塞 I/O：使用 selectors 模組</h2>
+        <p>在 Linux C 語言中常用的 `epoll` 或 Windows 的 `IOCP` 是最高效能的 I/O 模型。Python 提供了 <code>selectors</code> 模組，會自動根據你的作業系統選擇最佳的底層機制，比傳統的 <code>select</code> 更強大、更具擴展性。</p>
+        
+        <div class="file-header">advanced_selectors_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> selectors
+
+<span class="cmt"># 建立最佳的 selector 物件 (Linux: epoll, Mac: kqueue, Win: select)</span>
+sel <span class="op">=</span> selectors.DefaultSelector()
+
+<span class="kw">def</span> <span class="fn">accept_wrapper</span>(sock):
+    conn, addr <span class="op">=</span> sock.accept()
+    <span class="kw">print</span>(f<span class="str">"[連線] 接受來自 {addr} 的連線"</span>)
+    conn.setblocking(<span class="kw">False</span>) <span class="cmt"># 設定為非阻塞模式</span>
+    <span class="cmt"># 註冊客戶端 Socket，準備讀取 (EVENT_READ)</span>
+    sel.register(conn, selectors.EVENT_READ, data<span class="op">=</span>read_wrapper)
+
+<span class="kw">def</span> <span class="fn">read_wrapper</span>(conn):
+    <span class="kw">try</span>:
+        data <span class="op">=</span> conn.recv(<span class="num">1024</span>)
+        <span class="kw">if</span> data:
+            <span class="kw">print</span>(f<span class="str">"收到訊息: {data.decode()}"</span>)
+            conn.sendall(data) <span class="cmt"># Echo 回傳</span>
+        <span class="kw">else</span>:
+            <span class="kw">print</span>(<span class="str">"[斷線] 客戶端關閉連線"</span>)
+            sel.unregister(conn)
+            conn.close()
+    <span class="kw">except</span> ConnectionResetError:
+        sel.unregister(conn)
+        conn.close()
+
+HOST, PORT <span class="op">=</span> <span class="str">'127.0.0.1'</span>, <span class="num">9999</span>
+server <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((HOST, PORT))
+server.listen()
+server.setblocking(<span class="kw">False</span>)
+
+<span class="cmt"># 註冊伺服器 Socket，當有新連線時呼叫 accept_wrapper</span>
+sel.register(server, selectors.EVENT_READ, data<span class="op">=</span>accept_wrapper)
+
+<span class="kw">print</span>(f<span class="str">"Selectors 伺服器啟動於 {HOST}:{PORT}"</span>)
+<span class="kw">try</span>:
+    <span class="kw">while True</span>:
+        <span class="cmt"># 阻塞等待，直到有已註冊的 Socket 發生事件</span>
+        events <span class="op">=</span> sel.select(timeout<span class="op">=</span><span class="kw">None</span>)
+        <span class="kw">for</span> key, mask <span class="kw">in</span> events:
+            callback <span class="op">=</span> key.data <span class="cmt"># 取得綁定的函式</span>
+            callback(key.fileobj)
+<span class="kw">finally</span>:
+    sel.close()</code></pre>
+    </div>
+
+    <!-- DEMO 2 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 2</span> 現代化並行：Asyncio Socket 伺服器</h2>
+        <p>Python 3 引入了強大的 <code>asyncio</code>。我們不需手動處理繁瑣的 selectors，使用 <code>async/await</code> 語法就能寫出極高併發 (C10K problem) 的非阻塞網路伺服器。</p>
+
+        <div class="file-header">asyncio_tcp_server.py</div>
+        <pre><code><span class="kw">import</span> asyncio
+
+<span class="kw">async def</span> <span class="fn">handle_client</span>(reader, writer):
+    addr <span class="op">=</span> writer.get_extra_info(<span class="str">'peername'</span>)
+    <span class="kw">print</span>(f<span class="str">"[連線] {addr} 已連入"</span>)
+    
+    <span class="kw">while True</span>:
+        <span class="cmt"># 非同步讀取資料，不會卡住主執行緒</span>
+        data <span class="op">=</span> <span class="kw">await</span> reader.read(<span class="num">100</span>)
+        <span class="kw">if not</span> data:
+            <span class="kw">break</span>
+            
+        message <span class="op">=</span> data.decode()
+        <span class="kw">print</span>(f<span class="str">"收到 {addr} 訊息: {message!r}"</span>)
+        
+        <span class="cmt"># 非同步寫入回覆</span>
+        writer.write(data)
+        <span class="kw">await</span> writer.drain() <span class="cmt"># 確保緩衝區寫入完畢</span>
+        
+    <span class="kw">print</span>(f<span class="str">"[斷線] {addr} 已離開"</span>)
+    writer.close()
+    <span class="kw">await</span> writer.wait_closed()
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cmt"># 使用 asyncio 建立底層 Socket 伺服器</span>
+    server <span class="op">=</span> <span class="kw">await</span> asyncio.start_server(
+        handle_client, <span class="str">'127.0.0.1'</span>, <span class="num">8888</span>
+    )
+    
+    addrs <span class="op">=</span> <span class="str">', '</span>.join(str(sock.getsockname()) <span class="kw">for</span> sock <span class="kw">in</span> server.sockets)
+    <span class="kw">print</span>(f<span class="str">"Asyncio 伺服器運行於 {addrs}"</span>)
+    
+    <span class="kw">async with</span> server:
+        <span class="kw">await</span> server.serve_forever()
+
+<span class="kw">if</span> __name__ <span class="op">==</span> <span class="str">"__main__"</span>:
+    asyncio.run(main())</code></pre>
+    </div>
+
+    <!-- DEMO 3 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 3</span> 從零打造 HTTP Server：手刻網頁伺服器</h2>
+        <p>HTTP 協定本質上就是建立在 TCP 之上的「純文字通訊」。我們可以透過 Socket 接收瀏覽器的請求，並按照 HTTP 規範回傳標頭 (Headers) 與 HTML 內容，讓瀏覽器成功顯示網頁！</p>
+
+        <div class="file-header">custom_http_server.py</div>
+        <pre><code><span class="kw">import</span> socket
+
+HOST, PORT <span class="op">=</span> <span class="str">'127.0.0.1'</span>, <span class="num">8080</span>
+
+<span class="kw">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="kw">as</span> server:
+    server.bind((HOST, PORT))
+    server.listen(<span class="num">1</span>)
+    <span class="kw">print</span>(f<span class="str">"HTTP 伺服器啟動！請在瀏覽器輸入 http://{HOST}:{PORT}"</span>)
+    
+    <span class="kw">while True</span>:
+        conn, addr <span class="op">=</span> server.accept()
+        <span class="kw">with</span> conn:
+            request_data <span class="op">=</span> conn.recv(<span class="num">1024</span>).decode(<span class="str">'utf-8'</span>)
+            <span class="kw">if not</span> request_data:
+                <span class="kw">continue</span>
+                
+            <span class="cmt"># 印出瀏覽器發送的 HTTP Request Header</span>
+            <span class="kw">print</span>(<span class="str">"收到請求："</span>, request_data.split(<span class="str">'\n'</span>)[<span class="num">0</span>])
+            
+            <span class="cmt"># 準備回傳的 HTTP Response (狀態碼 200 OK)</span>
+            http_response <span class="op">=</span> (
+                <span class="str">"HTTP/1.1 200 OK\r\n"</span>
+                <span class="str">"Content-Type: text/html; charset=utf-8\r\n"</span>
+                <span class="str">"\r\n"</span>  <span class="cmt"># 空行代表 Header 結束，接著是 Body</span>
+                <span class="str">"&lt;html&gt;&lt;head&gt;&lt;title&gt;Python Socket&lt;/title&gt;&lt;/head&gt;"</span>
+                <span class="str">"&lt;body&gt;&lt;h1 style='color:green;'&gt;成功了！&lt;/h1&gt;"</span>
+                <span class="str">"&lt;p&gt;這是我用純 Socket 手刻的 HTTP 伺服器！&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;"</span>
+            )
+            
+            <span class="cmt"># 將文字編碼為 bytes 並送給瀏覽器</span>
+            conn.sendall(http_response.encode(<span class="str">'utf-8'</span>))</code></pre>
+    </div>
+
+    <!-- DEMO 4 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 4</span> UDP 群播 (Multicast)：指定群組廣播</h2>
+        <p>普通的 UDP 廣播會吵到網域內的所有人。群播 (Multicast) 允許我們將資料發送到特定的「D 類 IP 位址 (例如 224.1.1.1)」，只有主動加入該群組的 Socket 才會收到資料，常見於串流媒體與 IoT 設備發現。</p>
+
+        <div class="file-header">udp_multicast.py</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> struct
+
+MCAST_GRP <span class="op">=</span> <span class="str">'224.1.1.1'</span>
+MCAST_PORT <span class="op">=</span> <span class="num">5007</span>
+
+<span class="cmt"># == 接收端 (Receiver) ==</span>
+<span class="kw">def</span> <span class="fn">start_receiver</span>():
+    sock <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="num">1</span>)
+    sock.bind((<span class="str">''</span>, MCAST_PORT))
+    
+    <span class="cmt"># 告訴作業系統將這個 Socket 加入特定的群播群組 (IGMP)</span>
+    mreq <span class="op">=</span> struct.pack(<span class="str">"4sl"</span>, socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+    
+    <span class="kw">print</span>(<span class="str">"等待群播訊息..."</span>)
+    <span class="kw">while True</span>:
+        <span class="kw">print</span>(sock.recv(<span class="num">1024</span>).decode())
+
+<span class="cmt"># == 發送端 (Sender) ==</span>
+<span class="kw">def</span> <span class="fn">start_sender</span>():
+    sock <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+    <span class="cmt"># 設定 TTL (Time to Live)，決定封包能跨越多少個路由器 (1 代表僅限本地子網)</span>
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, <span class="num">1</span>)
+    
+    msg <span class="op">=</span> <span class="str">"【群播】給 224.1.1.1 頻道訂閱者的專屬訊息！"</span>
+    sock.sendto(msg.encode(), (MCAST_GRP, MCAST_PORT))
+    <span class="kw">print</span>(<span class="str">"訊息已發送。"</span>)</code></pre>
+    </div>
+
+    <!-- DEMO 5 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 5</span> Unix Domain Sockets：本機極速通訊 (IPC)</h2>
+        <p>如果 Server 和 Client 都在「同一台機器」上（例如 Nginx 與 uWSGI），走 TCP/IP 協定繞一圈網路層太慢了。在 Linux/macOS 系統中，我們可以使用 <code>AF_UNIX</code> 透過本機檔案系統進行極速的行程間通訊 (IPC)。</p>
+
+        <div class="file-header">unix_domain_socket.py (僅限 Linux / macOS)</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> os
+
+SOCKET_FILE <span class="op">=</span> <span class="str">'/tmp/my_ipc.sock'</span>
+
+<span class="cmt"># 清理遺留的 Socket 檔案</span>
+<span class="kw">if</span> os.path.exists(SOCKET_FILE):
+    os.remove(SOCKET_FILE)
+
+<span class="cmt"># 使用 AF_UNIX 建立 IPC Socket</span>
+<span class="kw">with</span> socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) <span class="kw">as</span> server:
+    server.bind(SOCKET_FILE)
+    server.listen()
+    <span class="kw">print</span>(f<span class="str">"UDS 伺服器監聽本機檔案：{SOCKET_FILE}"</span>)
+    
+    <span class="cmt"># 模擬客戶端連線</span>
+    <span class="kw">def</span> <span class="fn">client_task</span>():
+        <span class="kw">with</span> socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) <span class="kw">as</span> client:
+            client.connect(SOCKET_FILE)
+            client.sendall(<span class="str">b"Hello via local filesystem!"</span>)
+            
+    <span class="kw">import</span> threading
+    threading.Thread(target<span class="op">=</span>client_task).start()
+    
+    <span class="cmt"># 伺服器接收</span>
+    conn, _ <span class="op">=</span> server.accept()
+    <span class="kw">with</span> conn:
+        data <span class="op">=</span> conn.recv(<span class="num">1024</span>)
+        <span class="kw">print</span>(<span class="str">"UDS 伺服器收到："</span>, data.decode())</code></pre>
+    </div>
+
+    <!-- DEMO 6 -->
+    <div class="card">
+        <h2><span class="demo-badge">Demo 6</span> Raw Sockets：底層封包側錄 (Packet Sniffing)</h2>
+        <p>駭客或網管軟體（如 Wireshark）是如何看到別人的封包的？他們使用了 <strong>Raw Sockets</strong>，繞過 TCP/UDP 層，直接抓取 IP 層甚至乙太網路層的原始封包。（注意：此程式需在 Linux 下以 root 管理員權限執行）。</p>
+
+        <div class="file-header">raw_socket_sniffer.py (需 Root 權限)</div>
+        <pre><code><span class="kw">import</span> socket
+<span class="kw">import</span> os
+
+<span class="cmt"># 確保在 Linux 環境，Windows 需要使用 IP_HDRINCL 與 WSAIoctl</span>
+<span class="kw">if</span> os.name <span class="op">!=</span> <span class="str">'posix'</span>:
+    <span class="kw">print</span>(<span class="str">"此範例專為 Linux/macOS 設計，Windows 需額外設定。"</span>)
+    exit()
+
+<span class="kw">try</span>:
+    <span class="cmt"># 建立 Raw Socket，捕捉所有進出 IP 層的封包 (IPPROTO_IP / IPPROTO_TCP)</span>
+    <span class="cmt"># 注意：SOCK_RAW 需要系統最高權限 (sudo)</span>
+    sniffer <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+    
+    <span class="cmt"># 綁定到所有的網路介面</span>
+    sniffer.bind((<span class="str">'0.0.0.0'</span>, <span class="num">0</span>))
+    
+    <span class="kw">print</span>(<span class="str">"開始監聽原始 TCP/IP 封包 (按 Ctrl+C 停止)..."</span>)
+    <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="num">5</span>): <span class="cmt"># 抓取 5 個封包作為展示</span>
+        <span class="cmt"># 接收原始資料 (包含 IP 表頭、TCP 表頭與實際資料)</span>
+        raw_packet, addr <span class="op">=</span> sniffer.recvfrom(<span class="num">65565</span>)
+        
+        <span class="kw">print</span>(f<span class="str">"抓到來自 {addr[0]} 的封包，總長度：{len(raw_packet)} bytes"</span>)
+        
+        <span class="cmt"># 實務上需要使用 struct 模組來解析 raw_packet 前 20 bytes 的 IP Header</span>
+        <span class="cmt"># 來分析 Source IP, Destination IP, TTL, Protocol 等資訊。</span>
+
+<span class="kw">except</span> PermissionError:
+    <span class="kw">print</span>(<span class="str">"權限不足！請使用 sudo 執行此程式以開啟 Raw Socket。"</span>)</code></pre>
+    </div>
+
+</div>
+
+</body>
+</html>
