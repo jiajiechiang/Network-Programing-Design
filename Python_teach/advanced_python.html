@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 進階互動式教學 - 量子大師之路</title>
+    <style>
+        :root {
+            --bg-color: #050510;
+            --glass-bg: rgba(15, 15, 30, 0.6);
+            --glass-border: rgba(0, 255, 255, 0.2);
+            --cyan: #00f3ff;
+            --magenta: #ff00ea;
+            --text-main: #f0f0f0;
+            --text-dim: #9ba1a6;
+            --code-bg: rgba(0, 0, 0, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 243, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 234, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* 網格背景動畫 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            animation: moveGrid 20s linear infinite;
+        }
+
+        header {
+            text-align: center;
+            padding: 10vh 20px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--glass-border);
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        h1 {
+            font-size: 4rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            background: linear-gradient(to right, var(--cyan), var(--magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        .guide-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 60px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .guide-section h2 {
+            color: var(--cyan);
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            border-bottom: 2px solid var(--magenta);
+            padding-bottom: 5px;
+        }
+
+        .guide-section ul {
+            list-style: none;
+            line-height: 2;
+        }
+
+        .guide-section li {
+            position: relative;
+            padding-left: 25px;
+            font-size: 1.1rem;
+        }
+
+        .guide-section li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--magenta);
+            font-weight: bold;
+        }
+
+        /* 互動式卡片網格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(40px);
+            animation: popIn 0.8s forwards;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            transition: 0.5s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 243, 255, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 243, 255, 0.15);
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card h3 {
+            color: var(--cyan);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card h3 span {
+            background: rgba(255, 0, 234, 0.2);
+            color: var(--magenta);
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 12px;
+            border: 1px solid var(--magenta);
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            min-height: 45px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            color: #d1d5db;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* 隱藏的 Output 區塊，Hover 時展開 */
+        .output-wrapper {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            margin-top: 0;
+        }
+
+        .card:hover .output-wrapper {
+            max-height: 200px;
+            opacity: 1;
+            margin-top: 15px;
+        }
+
+        .output {
+            background: #000;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--magenta);
+            color: var(--magenta);
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            position: relative;
+        }
+
+        .output::before {
+            content: '>> 執行結果 (Hover Reveal)';
+            display: block;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 5px;
+        }
+
+        /* 關鍵格動畫 */
+        @keyframes moveGrid {
+            from { background-position: 0 0; }
+            to { background-position: 30px 30px; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 卡片延遲載入 */
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+        .card:nth-child(7) { animation-delay: 0.7s; }
+        .card:nth-child(8) { animation-delay: 0.8s; }
+        .card:nth-child(9) { animation-delay: 0.9s; }
+        .card:nth-child(10) { animation-delay: 1.0s; }
+        .card:nth-child(11) { animation-delay: 1.1s; }
+        .card:nth-child(12) { animation-delay: 1.2s; }
+        .card:nth-child(13) { animation-delay: 1.3s; }
+        .card:nth-child(14) { animation-delay: 1.4s; }
+        .card:nth-child(15) { animation-delay: 1.5s; }
+        .card:nth-child(16) { animation-delay: 1.6s; }
+
+        .keyword { color: #ff79c6; }
+        .func { color: #50fa7b; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Python Advanced</h1>
+        <p class="subtitle">將滑鼠懸停於代碼卡片上，解鎖隱藏的執行結果。深入探索元類別、非同步、記憶體最佳化與進階設計模式。</p>
+    </header>
+
+    <div class="container">
+        <section class="guide-section">
+            <h2>⚛️ 進階核心知識體系</h2>
+            <ul>
+                <li><strong>元程式設計 (Metaprogramming)：</strong> 透過 <code>Metaclass</code> 與 <code>__new__</code> 控制類別的建立過程。</li>
+                <li><strong>並發與非同步 (Concurrency)：</strong> 精通 <code>asyncio</code>、協程 (Coroutines) 與執行緒/行程的底層差異。</li>
+                <li><strong>描述器協議 (Descriptors)：</strong> 深度理解 <code>__get__</code>、<code>__set__</code>，這是 property 與 classmethod 的底層原理。</li>
+                <li><strong>效能與記憶體最佳化：</strong> 使用 <code>__slots__</code> 減少記憶體開銷，運用 <code>functools.lru_cache</code> 進行快取。</li>
+                <li><strong>進階多型設計：</strong> 使用 <code>abc</code> (抽象基底類別) 與 <code>singledispatch</code> (單分派泛型函式) 打造穩健架構。</li>
+            </ul>
+        </section>
+
+        <div class="grid">
+            
+            <div class="card">
+                <h3><span>01</span> 快取最佳化 (LRU Cache)</h3>
+                <p>使用 <code>functools.lru_cache</code> 將耗時函式的結果暫存於記憶體，極大提升遞迴效能。</p>
+                <pre><code><span class="keyword">import</span> functools
+
+<span class="keyword">@functools.lru_cache</span>(maxsize=<span class="keyword">None</span>)
+<span class="keyword">def</span> <span class="func">fib</span>(n):
+    <span class="keyword">if</span> n < 2: <span class="keyword">return</span> n
+    <span class="keyword">return</span> fib(n-1) + fib(n-2)
+
+<span class="func">print</span>(<span class="string">"Fibonacci(50):"</span>, fib(50))</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Fibonacci(50): 12586269025</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>02</span> 非同步 I/O (asyncio)</h3>
+                <p>使用 <code>async/await</code> 處理高併發 I/O 操作，不會阻塞主執行緒。</p>
+                <pre><code><span class="keyword">import</span> asyncio
+
+<span class="keyword">async def</span> <span class="func">fetch_data</span>(id):
+    <span class="keyword">await</span> asyncio.sleep(0.1)
+    <span class="keyword">return f</span><span class="string">"Data {id}"</span>
+
+<span class="keyword">async def</span> <span class="func">main</span>():
+    tasks = [fetch_data(i) <span class="keyword">for</span> i <span class="keyword">in range</span>(3)]
+    res = <span class="keyword">await</span> asyncio.gather(*tasks)
+    <span class="func">print</span>(res)
+
+asyncio.run(main())</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">['Data 0', 'Data 1', 'Data 2']</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>03</span> 描述器協議 (Descriptors)</h3>
+                <p>透過實作 <code>__get__</code> 與 <code>__set__</code> 來攔截並控制類別屬性的存取。</p>
+                <pre><code><span class="keyword">class</span> <span class="func">IntegerOnly</span>:
+    <span class="keyword">def</span> <span class="func">__set_name__</span>(self, owner, name):
+        self.name = name
+    <span class="keyword">def</span> <span class="func">__set__</span>(self, obj, value):
+        <span class="keyword">if not isinstance</span>(value, <span class="keyword">int</span>):
+            <span class="keyword">raise</span> ValueError(<span class="string">"Must be int"</span>)
+        obj.__dict__[self.name] = value
+
+<span class="keyword">class</span> <span class="func">User</span>:
+    age = IntegerOnly()
+
+u = User()
+u.age = 25
+<span class="func">print</span>(u.age)</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">25<br/>(若賦值字串則會引發 ValueError)</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>04</span> 元類別 (Metaclass)</h3>
+                <p>類別的「類別」。可用來攔截類別的建立過程，強制套用設計模式(如 Singleton)。</p>
+                <pre><code><span class="keyword">class</span> <span class="func">SingletonMeta</span>(<span class="keyword">type</span>):
+    _instances = {}
+    <span class="keyword">def</span> <span class="func">__call__</span>(cls, *args, **kwargs):
+        <span class="keyword">if</span> cls <span class="keyword">not in</span> cls._instances:
+            inst = <span class="keyword">super</span>().__call__(*args, **kwargs)
+            cls._instances[cls] = inst
+        <span class="keyword">return</span> cls._instances[cls]
+
+<span class="keyword">class</span> <span class="func">DB</span>(metaclass=SingletonMeta):
+    <span class="keyword">pass</span>
+
+<span class="func">print</span>(DB() <span class="keyword">is</span> DB())</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">True</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>05</span> __slots__ 記憶體最佳化</h3>
+                <p>關閉類別實例的 <code>__dict__</code>，使用固定長度的陣列存儲屬性，大幅節省記憶體。</p>
+                <pre><code><span class="keyword">class</span> <span class="func">Point</span>:
+    <span class="comment"># 限制只能擁有 x, y 屬性</span>
+    __slots__ = [<span class="string">'x'</span>, <span class="string">'y'</span>]
+    
+    <span class="keyword">def</span> <span class="func">__init__</span>(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(10, 20)
+<span class="comment"># p.z = 30  # 會引發 AttributeError</span>
+<span class="func">print</span>(p.x, p.y)</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">10 20</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>06</span> 上下文管理器產生器</h3>
+                <p>利用 <code>@contextmanager</code> 與 <code>yield</code>，將一般函式快速轉為 with 語法支援的物件。</p>
+                <pre><code><span class="keyword">from</span> contextlib <span class="keyword">import</span> contextmanager
+
+<span class="keyword">@contextmanager</span>
+<span class="keyword">def</span> <span class="func">timer</span>():
+    <span class="keyword">import</span> time
+    start = time.time()
+    <span class="keyword">yield</span>
+    <span class="func">print</span>(<span class="keyword">f</span><span class="string">"耗時: {time.time() - start:.4f}s"</span>)
+
+<span class="keyword">with</span> timer():
+    <span class="keyword">sum</span>(i*i <span class="keyword">for</span> i <span class="keyword">in range</span>(10000))</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">耗時: 0.0012s (依實際硬體而異)</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>07</span> 單分派泛型 (Single Dispatch)</h3>
+                <p>Python 也能實作類似其他語言的「函式多載(Overload)」，根據參數型別執行不同邏輯。</p>
+                <pre><code><span class="keyword">from</span> functools <span class="keyword">import</span> singledispatch
+
+<span class="keyword">@singledispatch</span>
+<span class="keyword">def</span> <span class="func">process</span>(data):
+    <span class="func">print</span>(<span class="string">"處理未知型態:"</span>, data)
+
+<span class="keyword">@process.register</span>(<span class="keyword">int</span>)
+<span class="keyword">def</span> <span class="func">_</span>(data):
+    <span class="func">print</span>(<span class="string">"處理整數:"</span>, data * 2)
+
+process(10)
+process(<span class="string">"Hello"</span>)</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">處理整數: 20<br/>處理未知型態: Hello</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>08</span> 資料類別 (Dataclasses)</h3>
+                <p>自動生成 <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code>，適合用來建立純資料容器。</p>
+                <pre><code><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field
+
+<span class="keyword">@dataclass</span>
+<span class="keyword">class</span> <span class="func">Inventory</span>:
+    item: <span class="keyword">str</span>
+    price: <span class="keyword">float</span>
+    <span class="comment"># 使用 default_factory 初始化可變物件</span>
+    tags: <span class="keyword">list</span> = field(default_factory=<span class="keyword">list</span>)
+
+inv = Inventory(<span class="string">"Sword"</span>, 99.9, [<span class="string">"Weapon"</span>])
+<span class="func">print</span>(inv)</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Inventory(item='Sword', price=99.9, tags=['Weapon'])</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>09</span> 帶參數的裝飾器</h3>
+                <p>透過三層函式嵌套，建立可以接收參數的自訂裝飾器。</p>
+                <pre><code><span class="keyword">def</span> <span class="func">repeat</span>(times):
+    <span class="keyword">def</span> <span class="func">decorator_repeat</span>(func):
+        <span class="keyword">def</span> <span class="func">wrapper</span>(*args, **kwargs):
+            <span class="keyword">for</span> _ <span class="keyword">in range</span>(times):
+                res = func(*args, **kwargs)
+            <span class="keyword">return</span> res
+        <span class="keyword">return</span> wrapper
+    <span class="keyword">return</span> decorator_repeat
+
+<span class="keyword">@repeat</span>(times=3)
+<span class="keyword">def</span> <span class="func">greet</span>(name):
+    <span class="func">print</span>(<span class="keyword">f</span><span class="string">"Hi {name}"</span>)
+
+greet(<span class="string">"Neo"</span>)</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Hi Neo<br/>Hi Neo<br/>Hi Neo</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>10</span> yield from (委派產生器)</h3>
+                <p>用於將一個產生器的操作直接委派給另一個可迭代物件，簡化雙層 for 迴圈。</p>
+                <pre><code><span class="keyword">def</span> <span class="func">flatten</span>(nested_list):
+    <span class="keyword">for</span> item <span class="keyword">in</span> nested_list:
+        <span class="keyword">if isinstance</span>(item, <span class="keyword">list</span>):
+            <span class="keyword">yield from</span> flatten(item)
+        <span class="keyword">else</span>:
+            <span class="keyword">yield</span> item
+
+nested = [1, [2, [3, 4]], 5]
+<span class="func">print</span>(<span class="keyword">list</span>(flatten(nested)))</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">[1, 2, 3, 4, 5]</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>11</span> __new__ vs __init__</h3>
+                <p><code>__new__</code> 負責「創造」物件實例，而 <code>__init__</code> 負責「初始化」。</p>
+                <pre><code><span class="keyword">class</span> <span class="func">Factory</span>:
+    <span class="keyword">def</span> <span class="func">__new__</span>(cls, value):
+        <span class="keyword">if</span> value > 0:
+            <span class="keyword">return super</span>().__new__(cls)
+        <span class="keyword">return None</span> <span class="comment"># 拒絕建立</span>
+        
+    <span class="keyword">def</span> <span class="func">__init__</span>(self, value):
+        self.value = value
+
+obj1 = Factory(10)
+obj2 = Factory(-5)
+<span class="func">print</span>(obj1, obj2)</code></pre>
+                <div class="output-wrapper">
+                    <div class="output"><__main__.Factory object at ...> None</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>12</span> 抽象基底類別 (ABC)</h3>
+                <p>定義標準介面，強制子類別必須實作特定方法，否則無法實例化。</p>
+                <pre><code><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod
+
+<span class="keyword">class</span> <span class="func">PaymentABC</span>(ABC):
+    <span class="keyword">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="func">pay</span>(self, amount):
+        <span class="keyword">pass</span>
+
+<span class="keyword">class</span> <span class="func">Stripe</span>(PaymentABC):
+    <span class="keyword">def</span> <span class="func">pay</span>(self, amount):
+        <span class="func">print</span>(<span class="keyword">f</span><span class="string">"Paid ${amount}"</span>)
+
+Stripe().pay(50)
+<span class="comment"># PaymentABC() # 會引發 TypeError</span></code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Paid $50</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>13</span> 弱參照 (Weakref)</h3>
+                <p>建立對物件的參照，但不會增加其引用計數 (Reference Count)，有助於避免記憶體洩漏。</p>
+                <pre><code><span class="keyword">import</span> weakref
+
+<span class="keyword">class</span> <span class="func">HeavyObject</span>:
+    <span class="keyword">pass</span>
+
+obj = HeavyObject()
+ref = weakref.ref(obj)
+
+<span class="func">print</span>(<span class="string">"Before del:"</span>, ref())
+<span class="keyword">del</span> obj
+<span class="func">print</span>(<span class="string">"After del:"</span>, ref())</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Before del: <__main__.HeavyObject object><br/>After del: None</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>14</span> 猴子修補 (Monkey Patching)</h3>
+                <p>在執行期間動態替換類別或模組的方法，常用於單元測試的 Mock。</p>
+                <pre><code><span class="keyword">class</span> <span class="func">API</span>:
+    <span class="keyword">def</span> <span class="func">get_data</span>(self):
+        <span class="keyword">return</span> <span class="string">"Real Data"</span>
+
+<span class="comment"># 動態修改行為</span>
+<span class="keyword">def</span> <span class="func">fake_get_data</span>(self):
+    <span class="keyword">return</span> <span class="string">"Mocked Data"</span>
+
+API.get_data = fake_get_data
+
+api = API()
+<span class="func">print</span>(api.get_data())</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Mocked Data</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>15</span> 偏函式 (functools.partial)</h3>
+                <p>預先填入函式的某些參數，產生一個新的、更少參數的函式，方便回呼(Callback)設計。</p>
+                <pre><code><span class="keyword">from</span> functools <span class="keyword">import</span> partial
+
+<span class="keyword">def</span> <span class="func">power</span>(base, exp):
+    <span class="keyword">return</span> base ** exp
+
+<span class="comment"># 固定 exp 參數為 2</span>
+square = partial(power, exp=2)
+cube = partial(power, exp=3)
+
+<span class="func">print</span>(<span class="string">"Square(5):"</span>, square(5))
+<span class="func">print</span>(<span class="string">"Cube(5):"</span>, cube(5))</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Square(5): 25<br/>Cube(5): 125</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><span>16</span> 協定型別提示 (Protocols)</h3>
+                <p>Python 3.8+ 引入。支援結構型子型別 (Duck Typing)，只要類別實作了指定方法即可通過靜態檢查。</p>
+                <pre><code><span class="keyword">from</span> typing <span class="keyword">import</span> Protocol
+
+<span class="keyword">class</span> <span class="func">Flyable</span>(Protocol):
+    <span class="keyword">def</span> <span class="func">fly</span>(self) -> <span class="keyword">None</span>: ...
+
+<span class="keyword">class</span> <span class="func">Bird</span>:
+    <span class="keyword">def</span> <span class="func">fly</span>(self):
+        <span class="func">print</span>(<span class="string">"Flapping wings!"</span>)
+
+<span class="comment"># 靜態檢查器知道 Bird 符合 Flyable</span>
+<span class="keyword">def</span> <span class="func">make_it_fly</span>(f: Flyable):
+    f.fly()
+
+make_it_fly(Bird())</code></pre>
+                <div class="output-wrapper">
+                    <div class="output">Flapping wings!</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

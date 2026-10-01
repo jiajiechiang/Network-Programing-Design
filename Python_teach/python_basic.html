@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 初階互動式教學</title>
+    <style>
+        :root {
+            --python-blue: #306998;
+            --python-yellow: #FFD43B;
+            --bg-color: #1e1e1e;
+            --card-bg: #2d2d2d;
+            --text-main: #f8f8f2;
+            --text-muted: #a1a1aa;
+            --code-bg: #111111;
+            --output-bg: #000000;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 10vh 20px;
+            background: linear-gradient(135deg, var(--python-blue) 0%, #1e1e1e 100%);
+            border-bottom: 4px solid var(--python-yellow);
+            animation: slideDown 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            color: var(--python-yellow);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: pulseText 3s infinite alternate;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .tutorial-section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 1s ease-out 0.5s forwards;
+            opacity: 0;
+        }
+
+        .tutorial-section h2 {
+            color: var(--python-yellow);
+            border-bottom: 2px solid var(--python-blue);
+            padding-bottom: 10px;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .demo-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid var(--python-blue);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: slideUp 0.8s forwards;
+        }
+
+        .demo-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 212, 59, 0.05), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border-left-color: var(--python-yellow);
+        }
+
+        .demo-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .demo-card h3 {
+            margin-top: 0;
+            color: #66d9ef;
+            display: flex;
+            align-items: center;
+        }
+
+        .demo-card h3 span {
+            background: var(--python-blue);
+            color: white;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #333;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #a6e22e;
+        }
+
+        .output {
+            background: var(--output-bg);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #fd971f;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #fd971f;
+            margin-top: 10px;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseText {
+            from { text-shadow: 0 0 10px rgba(255, 212, 59, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 212, 59, 1), 0 0 30px rgba(48, 105, 152, 0.8); }
+        }
+
+        /* Staggered animation delays for grid items */
+        .demo-card:nth-child(1) { animation-delay: 0.1s; }
+        .demo-card:nth-child(2) { animation-delay: 0.2s; }
+        .demo-card:nth-child(3) { animation-delay: 0.3s; }
+        .demo-card:nth-child(4) { animation-delay: 0.4s; }
+        .demo-card:nth-child(5) { animation-delay: 0.5s; }
+        .demo-card:nth-child(6) { animation-delay: 0.6s; }
+        .demo-card:nth-child(7) { animation-delay: 0.7s; }
+        .demo-card:nth-child(8) { animation-delay: 0.8s; }
+        .demo-card:nth-child(9) { animation-delay: 0.9s; }
+        .demo-card:nth-child(10) { animation-delay: 1.0s; }
+        .demo-card:nth-child(11) { animation-delay: 1.1s; }
+        .demo-card:nth-child(12) { animation-delay: 1.2s; }
+        .demo-card:nth-child(13) { animation-delay: 1.3s; }
+        .demo-card:nth-child(14) { animation-delay: 1.4s; }
+        .demo-card:nth-child(15) { animation-delay: 1.5s; }
+        .demo-card:nth-child(16) { animation-delay: 1.6s; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Python 互動式初階教學</h1>
+        <p>滑鼠游標移至卡片上以體驗 CSS 互動特效，輕鬆掌握 16 個核心基礎概念。</p>
+    </header>
+
+    <div class="container">
+        <!-- 教學說明區塊 -->
+        <section class="tutorial-section">
+            <h2>🚀 學習指南：Python 的核心精神</h2>
+            <p>Python 是一門強調可讀性與簡潔語法的程式語言。它的設計哲學是「優雅、明確、簡單」。</p>
+            <ul>
+                <li><strong>變數與資料型別：</strong> 不需事先宣告型別（動態型別），直接賦值即可使用。常見包含整數 (int)、浮點數 (float)、字串 (str) 與布林值 (bool)。</li>
+                <li><strong>資料結構：</strong> 串列 (List)、字典 (Dictionary)、集合 (Set) 與元組 (Tuple) 讓資料管理變得極為彈性。</li>
+                <li><strong>流程控制：</strong> 使用 <code>if...elif...else</code> 進行條件判斷，使用 <code>for</code> 與 <code>while</code> 處理重複性工作。注意：Python 強制使用「縮排 (Indentation)」來定義程式區塊。</li>
+                <li><strong>函式與模組：</strong> 透過 <code>def</code> 定義重複使用的邏輯，並可使用 <code>import</code> 引入強大的標準函式庫。</li>
+            </ul>
+        </section>
+
+        <!-- 16 個 DEMO 程式區塊 -->
+        <div class="demo-grid">
+            
+            <div class="demo-card">
+                <h3><span>01</span> Hello World</h3>
+                <p>學習任何語言的第一步，在螢幕上印出文字。</p>
+                <pre><code>print("Hello, Python World!")</code></pre>
+                <div class="output">> Hello, Python World!</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>02</span> 變數與賦值</h3>
+                <p>Python 會自動判斷變數型態，無需宣告。</p>
+                <pre><code>name = "Alice"
+age = 25
+print(f"{name} is {age} years old.")</code></pre>
+                <div class="output">> Alice is 25 years old.</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>03</span> 基本算術運算</h3>
+                <p>支援加減乘除、取餘數及次方運算。</p>
+                <pre><code>a, b = 10, 3
+print("相除:", a / b)
+print("取整數:", a // b)
+print("取餘數:", a % b)
+print("次方:", b ** 2)</code></pre>
+                <div class="output">> 相除: 3.3333333333333335
+> 取整數: 3
+> 取餘數: 1
+> 次方: 9</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>04</span> 字串操作</h3>
+                <p>字串可以相加、重複，或轉換大小寫。</p>
+                <pre><code>text = "python"
+print(text.capitalize())
+print(text.upper())
+print(text * 3)</code></pre>
+                <div class="output">> Python
+> PYTHON
+> pythonpythonpython</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>05</span> 條件判斷 (if-else)</h3>
+                <p>根據條件執行不同的程式區塊。</p>
+                <pre><code>score = 85
+if score >= 90:
+    print("Grade: A")
+elif score >= 80:
+    print("Grade: B")
+else:
+    print("Grade: C")</code></pre>
+                <div class="output">> Grade: B</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>06</span> For 迴圈</h3>
+                <p>搭配 <code>range()</code> 或直接走訪序列。</p>
+                <pre><code>for i in range(3):
+    print(f"迴圈次數: {i}")</code></pre>
+                <div class="output">> 迴圈次數: 0
+> 迴圈次數: 1
+> 迴圈次數: 2</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>07</span> While 迴圈</h3>
+                <p>當條件成立時，持續執行區塊內的程式碼。</p>
+                <pre><code>count = 3
+while count > 0:
+    print(count)
+    count -= 1
+print("Go!")</code></pre>
+                <div class="output">> 3
+> 2
+> 1
+> Go!</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>08</span> 串列 (List)</h3>
+                <p>可變動的有序集合，可隨時新增或刪除元素。</p>
+                <pre><code>fruits = ['apple', 'banana']
+fruits.append('cherry')
+print(fruits[0])
+print(fruits)</code></pre>
+                <div class="output">> apple
+> ['apple', 'banana', 'cherry']</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>09</span> 元組 (Tuple)</h3>
+                <p>與串列相似，但建立後「不可修改」，安全性較高。</p>
+                <pre><code>dimensions = (1920, 1080)
+print(f"寬度: {dimensions[0]}")
+# dimensions[0] = 800 (這行會發生錯誤)</code></pre>
+                <div class="output">> 寬度: 1920</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>10</span> 字典 (Dictionary)</h3>
+                <p>透過鍵值對 (Key-Value) 來儲存與查詢資料。</p>
+                <pre><code>user = {"name": "Bob", "role": "Admin"}
+print(user["name"])
+user["age"] = 30
+print(user.keys())</code></pre>
+                <div class="output">> Bob
+> dict_keys(['name', 'role', 'age'])</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>11</span> 集合 (Set)</h3>
+                <p>無序且不重複的元素集合，常用於去除重複資料。</p>
+                <pre><code>nums = {1, 2, 2, 3, 3, 3}
+print(nums)
+nums.add(4)
+print(nums)</code></pre>
+                <div class="output">> {1, 2, 3}
+> {1, 2, 3, 4}</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>12</span> 自訂函式 (Function)</h3>
+                <p>將重複的邏輯打包，提高程式碼的重用性。</p>
+                <pre><code>def greet(name="Guest"):
+    return f"Hello, {name}!"
+
+print(greet("Emma"))
+print(greet())</code></pre>
+                <div class="output">> Hello, Emma!
+> Hello, Guest!</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>13</span> 引入模組 (Import)</h3>
+                <p>使用 Python 內建或第三方庫擴充功能。</p>
+                <pre><code>import math
+print("圓周率:", round(math.pi, 2))
+print("9 的平方根:", math.sqrt(9))</code></pre>
+                <div class="output">> 圓周率: 3.14
+> 9 的平方根: 3.0</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>14</span> 異常處理 (Try-Except)</h3>
+                <p>避免程式因為預期外的錯誤而崩潰。</p>
+                <pre><code>try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("錯誤：不能除以零！")
+finally:
+    print("執行完畢")</code></pre>
+                <div class="output">> 錯誤：不能除以零！
+> 執行完畢</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>15</span> 列表推導式</h3>
+                <p>用極短的語法快速產生新的串列 (List Comprehension)。</p>
+                <pre><code>squares = [x**2 for x in range(1, 6)]
+print(squares)</code></pre>
+                <div class="output">> [1, 4, 9, 16, 25]</div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span>16</span> Lambda 匿名函式</h3>
+                <p>不需命名的單行小函式，常搭配 map 或 filter 使用。</p>
+                <pre><code>multiply = lambda x, y: x * y
+print("5 * 4 =", multiply(5, 4))</code></pre>
+                <div class="output">> 5 * 4 = 20</div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
