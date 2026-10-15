@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 中階學習成效測驗</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Microsoft JhengHei', Arial, sans-serif; 
+            background-color: #f4f7f6; 
+            color: #333; 
+            line-height: 1.6; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #bc13fe; 
+            border-bottom: 2px solid #bc13fe;
+            padding-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .info-section { 
+            margin-bottom: 30px; 
+            padding-top: 10px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .info-section div {
+            display: flex;
+            align-items: center;
+        }
+        .info-section label { 
+            font-weight: bold; 
+            margin-right: 10px; 
+        }
+        .info-section input { 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 1em;
+        }
+        .question { 
+            margin-bottom: 20px; 
+            padding: 20px; 
+            background: #fdfdfd; 
+            border: 1px solid #e1e1e1; 
+            border-radius: 5px; 
+            border-left: 5px solid #bc13fe; 
+        }
+        .question p { 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            margin-top: 0; 
+        }
+        .options { 
+            list-style: none; 
+            padding: 0; 
+        }
+        .options li { 
+            margin-bottom: 10px; 
+        }
+        .options label { 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            padding: 5px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .options label:hover {
+            background: #f0f8ff;
+        }
+        .options input[type="radio"] { 
+            margin-right: 10px; 
+            transform: scale(1.2); 
+        }
+        
+        .main-submit-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 18px; 
+            background-color: #ff9900; 
+            color: white; 
+            border: none; 
+            font-size: 1.4em; 
+            font-weight: bold;
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            margin-top: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .main-submit-btn:hover { 
+            background-color: #e68a00; 
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            color: white; 
+            border: none; 
+            font-size: 1.2em; 
+            font-weight: bold;
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            min-width: 200px;
+            text-align: center;
+        }
+        .txt-btn { background-color: #f39c12; }
+        .txt-btn:hover { background-color: #e67e22; }
+        .pdf-btn { background-color: #e74c3c; }
+        .pdf-btn:hover { background-color: #c0392b; }
+        .restart-btn { background-color: #3498db; }
+        .restart-btn:hover { background-color: #2980b9; }
+
+        .hidden { display: none !important; }
+        
+        .pdf-content-wrapper { padding: 20px; }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .result-table th, .result-table td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+        }
+        .result-table th { background-color: #ecf0f1; }
+        .result-table td.text-left { text-align: left; }
+        .correct-text { color: #27ae60; font-weight: bold; }
+        .wrong-text { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container" id="quizContainer">
+        <h1>Python 中階學習成效測驗</h1>
+        <p class="subtitle">本測驗將評估您的進階觀念 (如 OOP, Decorator, Generator 等)</p>
+        <form id="quizForm">
+            <div class="info-section">
+                <div>
+                    <label for="studentName">學員姓名：</label>
+                    <input type="text" id="studentName" placeholder="請輸入姓名">
+                </div>
+                <div>
+                    <label for="studentId">學號：</label>
+                    <input type="text" id="studentId" placeholder="請輸入學號">
+                </div>
+            </div>
+            
+            <p style="color: #e67e22; font-weight: bold; text-align: center;">※ 未作答的題目會自動以「未作答」計算。</p>
+            
+            <div id="questionsArea">
+
+            <div class="question">
+                <p>1. 關於列表推導式 (List Comprehension)，`[x for x in range(5) if x % 2 == 0]` 的結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="0">
+                            [0, 1, 2, 3, 4]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="1">
+                            [2, 4]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="2">
+                            [0, 2, 4]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="3">
+                            [1, 3]
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>2. 下列哪一個語法可以用來建立「字典推導式 (Dict Comprehension)」？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="0">
+                            {k: v for k, v in...}
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="1">
+                            [k: v for k, v in...]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="2">
+                            (k: v for k, v in...)
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="3">
+                            &lt;k: v for k, v in...&gt;
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>3. 在函式定義中，`*args` 的主要作用是什麼？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="0">
+                            接收任意數量的關鍵字參數
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="1">
+                            接收任意數量的位置參數
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="2">
+                            將變數轉換為指標
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="3">
+                            強制限制參數型別
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>4. 在函式定義中，`**kwargs` 會將傳入的參數轉換為何種資料型態？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="0">
+                            List (串列)
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="1">
+                            Tuple (元組)
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="2">
+                            Set (集合)
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="3">
+                            Dictionary (字典)
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>5. Python 中的「裝飾器 (Decorator)」本質上是什麼？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="0">
+                            一個類別
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="1">
+                            一個高階函式
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="2">
+                            一個全域變數
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="3">
+                            一個生成器
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>6. 若要建立一個「產生器 (Generator)」，函式內應該使用哪一個關鍵字回傳值？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="0">
+                            return
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="1">
+                            yield
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="2">
+                            break
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="3">
+                            continue
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>7. 產生器 (Generator) 相比於一般串列 (List) 最大的優勢是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="0">
+                            執行速度最快
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="1">
+                            可以重複無限次讀取
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="2">
+                            節省記憶體空間
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="3">
+                            支援索引 (Index) 查詢
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>8. 下列哪一個內建函式可以對可迭代物件的所有元素執行指定的函式，並回傳新的可迭代物件？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="0">
+                            filter()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="1">
+                            map()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="2">
+                            reduce()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="3">
+                            zip()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>9. `list(filter(lambda x: x > 3, [1, 2, 3, 4, 5]))` 的結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="0">
+                            [1, 2]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="1">
+                            [4, 5]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="2">
+                            [1, 2, 3]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="3">
+                            [3, 4, 5]
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>10. 物件導向中，用來初始化物件屬性的特殊方法 (Magic Method) 是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="0">
+                            __start__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="1">
+                            __new__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="2">
+                            __init__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="3">
+                            __class__
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>11. 在類別的方法中，第一個參數通常命名為 `self`，它代表什麼？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="0">
+                            父類別
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="1">
+                            類別本身
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="2">
+                            物件實例 (Instance) 本身
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="3">
+                            全域環境
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>12. 若想自訂使用 `print()` 印出物件時顯示的字串，應實作哪一個魔法方法？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="0">
+                            __str__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="1">
+                            __repr__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="2">
+                            __print__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="3">
+                            __display__
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>13. 子類別若想呼叫父類別的方法，可以使用哪一個內建函式？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="0">
+                            parent()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="1">
+                            base()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="2">
+                            super()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="3">
+                            this()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>14. 下列哪一個裝飾器用來定義「類別方法 (Class Method)」？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="0">
+                            @staticmethod
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="1">
+                            @classmethod
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="2">
+                            @property
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="3">
+                            @abstractmethod
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>15. 例外處理中，無論是否發生錯誤，必定會執行的區塊是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="0">
+                            try
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="1">
+                            except
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="2">
+                            else
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="3">
+                            finally
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>16. 程式開發者若想主動拋出一個例外錯誤，應使用哪一個關鍵字？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="0">
+                            throw
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="1">
+                            catch
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="2">
+                            raise
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="3">
+                            error
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>17. 上下文管理器 (Context Manager) 常搭配哪一個關鍵字使用，以確保資源正確釋放(如關閉檔案)？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="0">
+                            with
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="1">
+                            using
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="2">
+                            open
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="3">
+                            import
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>18. 下列關於深淺拷貝的敘述，何者正確？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="0">
+                            = 等號賦值就是深拷貝
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="1">
+                            copy() 會連同內部巢狀結構一起複製
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="2">
+                            deepcopy() 會完全複製獨立的新物件
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="3">
+                            Python 預設傳遞參數都是深拷貝
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>19. 運算子 `==` 與 `is` 的區別是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="0">
+                            完全相同無區別
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="1">
+                            `==` 比較值，`is` 比較記憶體位址
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="2">
+                            `==` 比較記憶體位址，`is` 比較值
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="3">
+                            `is` 只能用於字串比較
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>20. Python 3.5 引入的「型別提示 (Type Hinting)」，其主要作用是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="0">
+                            強制限制變數型別，型別錯誤會無法執行
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="1">
+                            提升執行速度
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="2">
+                            提供靜態分析工具與 IDE 進行檢查與提示
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="3">
+                            自動轉換變數型別
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>21. 使用 `json` 模組時，將 Python 字典轉換為 JSON 字串的函式是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="0">
+                            json.load()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="1">
+                            json.loads()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="2">
+                            json.dump()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="3">
+                            json.dumps()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>22. 使用 `json` 模組時，將 JSON 字串解析為 Python 字典的函式是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="0">
+                            json.load()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="1">
+                            json.loads()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="2">
+                            json.dump()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="3">
+                            json.dumps()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>23. 正規表達式中，`\d` 代表什麼意義？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="0">
+                            匹配任何字母
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="1">
+                            匹配任何數字
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="2">
+                            匹配空白字元
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="3">
+                            匹配字串結尾
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>24. 若要讓自訂物件可以被迴圈迭代(Iterable)，必須實作哪些魔法方法？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="0">
+                            __iter__ 與 __next__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="1">
+                            __get__ 與 __set__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="2">
+                            __enter__ 與 __exit__
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="3">
+                            __len__ 與 __getitem__
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>25. 函式預設參數的陷阱中，為何不建議寫成 `def func(lst=[])`？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="0">
+                            語法錯誤
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="1">
+                            每次呼叫都會建立新的空串列
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="2">
+                            預設的串列會在多次呼叫中共用相同的記憶體
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="3">
+                            無法傳入串列以外的型別
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>26. `a, *b, c = [1, 2, 3, 4, 5]` 執行後，`b` 的值為？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="0">
+                            2
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="1">
+                            [2, 3, 4]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="2">
+                            [2, 3, 4, 5]
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="3">
+                            (2, 3, 4)
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>27. 若要在迴圈中同時取得元素的「索引值」與「內容」，最 Pythonic 的寫法是搭配哪個函式？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="0">
+                            zip()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="1">
+                            map()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="2">
+                            range()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="3">
+                            enumerate()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>28. `any([False, True, False])` 的回傳結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="0">
+                            True
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="1">
+                            False
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="2">
+                            None
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="3">
+                            Error
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>29. 兩個集合 (Set) `A = {1, 2}` 與 `B = {2, 3}`，`A & B` 的結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="0">
+                            {1, 2, 3}
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="1">
+                            {2}
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="2">
+                            {1, 3}
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="3">
+                            Error
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>30. 若在函式內部想修改全域變數的值，必須先使用哪一個關鍵字宣告？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="0">
+                            local
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="1">
+                            nonlocal
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="2">
+                            global
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="3">
+                            static
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            </div>
+
+            <button type="button" class="main-submit-btn" id="submitBtn">✅ 交卷並計算成績</button>
+        </form>
+    </div>
+
+    <div class="container hidden" id="resultContainer">
+        <div id="pdfContent" class="pdf-content-wrapper">
+            <h1 style="text-align:center; color:#bc13fe; border-bottom: 2px solid #bc13fe; padding-bottom:10px; margin-bottom: 20px;">
+                Python 中階學習成效評鑑成績單
+            </h1>
+            <div id="summaryArea" style="font-size: 1.2em; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+            </div>
+            
+            <h3 style="margin-top: 20px; color: #34495e;">📝 考生作答明細：</h3>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">題號</th>
+                        <th style="width: 55%; text-align: left;">題目</th>
+                        <th style="width: 25%;">考生作答</th>
+                        <th style="width: 12%;">結果</th>
+                    </tr>
+                </thead>
+                <tbody id="detailTableBody">
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="btn-group">
+            <button type="button" id="downloadTxtBtn" class="action-btn txt-btn">📄 下載 TXT 成績單</button>
+            <button type="button" id="downloadPdfBtn" class="action-btn pdf-btn">📥 下載 PDF 成績單</button>
+            <button type="button" id="restartBtn" class="action-btn restart-btn">🔄 重新測驗</button>
+        </div>
+    </div>
+
+    <script>
+        const questionsData = [{"q": "1. 關於列表推導式 (List Comprehension)，`[x for x in range(5) if x % 2 == 0]` 的結果是？", "options": ["[0, 1, 2, 3, 4]", "[2, 4]", "[0, 2, 4]", "[1, 3]"], "ans": 2}, {"q": "2. 下列哪一個語法可以用來建立「字典推導式 (Dict Comprehension)」？", "options": ["{k: v for k, v in...}", "[k: v for k, v in...]", "(k: v for k, v in...)", "<k: v for k, v in...>"], "ans": 0}, {"q": "3. 在函式定義中，`*args` 的主要作用是什麼？", "options": ["接收任意數量的關鍵字參數", "接收任意數量的位置參數", "將變數轉換為指標", "強制限制參數型別"], "ans": 1}, {"q": "4. 在函式定義中，`**kwargs` 會將傳入的參數轉換為何種資料型態？", "options": ["List (串列)", "Tuple (元組)", "Set (集合)", "Dictionary (字典)"], "ans": 3}, {"q": "5. Python 中的「裝飾器 (Decorator)」本質上是什麼？", "options": ["一個類別", "一個高階函式", "一個全域變數", "一個生成器"], "ans": 1}, {"q": "6. 若要建立一個「產生器 (Generator)」，函式內應該使用哪一個關鍵字回傳值？", "options": ["return", "yield", "break", "continue"], "ans": 1}, {"q": "7. 產生器 (Generator) 相比於一般串列 (List) 最大的優勢是？", "options": ["執行速度最快", "可以重複無限次讀取", "節省記憶體空間", "支援索引 (Index) 查詢"], "ans": 2}, {"q": "8. 下列哪一個內建函式可以對可迭代物件的所有元素執行指定的函式，並回傳新的可迭代物件？", "options": ["filter()", "map()", "reduce()", "zip()"], "ans": 1}, {"q": "9. `list(filter(lambda x: x > 3, [1, 2, 3, 4, 5]))` 的結果是？", "options": ["[1, 2]", "[4, 5]", "[1, 2, 3]", "[3, 4, 5]"], "ans": 1}, {"q": "10. 物件導向中，用來初始化物件屬性的特殊方法 (Magic Method) 是？", "options": ["__start__", "__new__", "__init__", "__class__"], "ans": 2}, {"q": "11. 在類別的方法中，第一個參數通常命名為 `self`，它代表什麼？", "options": ["父類別", "類別本身", "物件實例 (Instance) 本身", "全域環境"], "ans": 2}, {"q": "12. 若想自訂使用 `print()` 印出物件時顯示的字串，應實作哪一個魔法方法？", "options": ["__str__", "__repr__", "__print__", "__display__"], "ans": 0}, {"q": "13. 子類別若想呼叫父類別的方法，可以使用哪一個內建函式？", "options": ["parent()", "base()", "super()", "this()"], "ans": 2}, {"q": "14. 下列哪一個裝飾器用來定義「類別方法 (Class Method)」？", "options": ["@staticmethod", "@classmethod", "@property", "@abstractmethod"], "ans": 1}, {"q": "15. 例外處理中，無論是否發生錯誤，必定會執行的區塊是？", "options": ["try", "except", "else", "finally"], "ans": 3}, {"q": "16. 程式開發者若想主動拋出一個例外錯誤，應使用哪一個關鍵字？", "options": ["throw", "catch", "raise", "error"], "ans": 2}, {"q": "17. 上下文管理器 (Context Manager) 常搭配哪一個關鍵字使用，以確保資源正確釋放(如關閉檔案)？", "options": ["with", "using", "open", "import"], "ans": 0}, {"q": "18. 下列關於深淺拷貝的敘述，何者正確？", "options": ["= 等號賦值就是深拷貝", "copy() 會連同內部巢狀結構一起複製", "deepcopy() 會完全複製獨立的新物件", "Python 預設傳遞參數都是深拷貝"], "ans": 2}, {"q": "19. 運算子 `==` 與 `is` 的區別是？", "options": ["完全相同無區別", "`==` 比較值，`is` 比較記憶體位址", "`==` 比較記憶體位址，`is` 比較值", "`is` 只能用於字串比較"], "ans": 1}, {"q": "20. Python 3.5 引入的「型別提示 (Type Hinting)」，其主要作用是？", "options": ["強制限制變數型別，型別錯誤會無法執行", "提升執行速度", "提供靜態分析工具與 IDE 進行檢查與提示", "自動轉換變數型別"], "ans": 2}, {"q": "21. 使用 `json` 模組時，將 Python 字典轉換為 JSON 字串的函式是？", "options": ["json.load()", "json.loads()", "json.dump()", "json.dumps()"], "ans": 3}, {"q": "22. 使用 `json` 模組時，將 JSON 字串解析為 Python 字典的函式是？", "options": ["json.load()", "json.loads()", "json.dump()", "json.dumps()"], "ans": 1}, {"q": "23. 正規表達式中，`\\d` 代表什麼意義？", "options": ["匹配任何字母", "匹配任何數字", "匹配空白字元", "匹配字串結尾"], "ans": 1}, {"q": "24. 若要讓自訂物件可以被迴圈迭代(Iterable)，必須實作哪些魔法方法？", "options": ["__iter__ 與 __next__", "__get__ 與 __set__", "__enter__ 與 __exit__", "__len__ 與 __getitem__"], "ans": 0}, {"q": "25. 函式預設參數的陷阱中，為何不建議寫成 `def func(lst=[])`？", "options": ["語法錯誤", "每次呼叫都會建立新的空串列", "預設的串列會在多次呼叫中共用相同的記憶體", "無法傳入串列以外的型別"], "ans": 2}, {"q": "26. `a, *b, c = [1, 2, 3, 4, 5]` 執行後，`b` 的值為？", "options": ["2", "[2, 3, 4]", "[2, 3, 4, 5]", "(2, 3, 4)"], "ans": 1}, {"q": "27. 若要在迴圈中同時取得元素的「索引值」與「內容」，最 Pythonic 的寫法是搭配哪個函式？", "options": ["zip()", "map()", "range()", "enumerate()"], "ans": 3}, {"q": "28. `any([False, True, False])` 的回傳結果是？", "options": ["True", "False", "None", "Error"], "ans": 0}, {"q": "29. 兩個集合 (Set) `A = {1, 2}` 與 `B = {2, 3}`，`A & B` 的結果是？", "options": ["{1, 2, 3}", "{2}", "{1, 3}", "Error"], "ans": 1}, {"q": "30. 若在函式內部想修改全域變數的值，必須先使用哪一個關鍵字宣告？", "options": ["local", "nonlocal", "global", "static"], "ans": 2}];
+        let currentResult = {};
+        
+        // 儲存已測驗過的學號，防止重複測試
+        let completedStudents = new Set();
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            
+            const nameInput = document.getElementById('studentName');
+            const idInput = document.getElementById('studentId');
+            const name = nameInput.value.trim();
+            const id = idInput.value.trim();
+            
+            if (!name || !id) {
+                alert('請先在最上方填寫「姓名」與「學號」，才能交卷喔！');
+                if(!name) nameInput.focus();
+                else if(!id) idInput.focus();
+                return;
+            }
+            
+            // 檢查是否重複測試
+            if (completedStudents.has(id)) {
+                alert('學號 ' + id + ' 已經完成過測驗，系統規定僅能受測一次！');
+                return;
+            }
+
+            let correctCount = 0;
+            const totalQuestions = questionsData.length;
+            const detailTableBody = document.getElementById('detailTableBody');
+            detailTableBody.innerHTML = '';
+            
+            let txtContent = `Python 中階學習成效評鑑成績單\n`;
+            txtContent += `====================================\n`;
+            txtContent += `學員姓名： ${name}\n`;
+            txtContent += `學員學號： ${id}\n`;
+            txtContent += `測驗級別： Python 中階\n`;
+            txtContent += `測驗題數： ${totalQuestions} 題 (單選)\n`;
+
+            let txtDetails = `\n📝 考生作答明細：\n`;
+            txtDetails += `====================================\n`;
+
+            questionsData.forEach((q, index) => {
+                const selectedOption = document.querySelector('input[name="q' + index + '"]:checked');
+                
+                const questionTextEscaped = q.q.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                
+                let userAnswerText = "未作答";
+                let isCorrect = false;
+
+                if (selectedOption) {
+                    const selectedVal = parseInt(selectedOption.value);
+                    userAnswerText = q.options[selectedVal].replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    if (selectedVal === q.ans) {
+                        isCorrect = true;
+                        correctCount++;
+                    }
+                }
+
+                const resultIcon = isCorrect ? '<span class="correct-text">✔</span>' : '<span class="wrong-text">✖</span>';
+                
+                // HTML 表格，不顯示標準答案
+                const rowHtml = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="text-left">${questionTextEscaped}</td>
+                        <td class="${isCorrect ? 'correct-text' : 'wrong-text'}">${userAnswerText}</td>
+                        <td>${resultIcon}</td>
+                    </tr>
+                `;
+                detailTableBody.insertAdjacentHTML('beforeend', rowHtml);
+                
+                // TXT 明細，不顯示標準答案
+                txtDetails += `題號： ${index + 1}\n`;
+                txtDetails += `題目： ${q.q}\n`;
+                txtDetails += `考生作答： ${userAnswerText !== "未作答" ? q.options[parseInt(selectedOption ? selectedOption.value : 0)] : "未作答"}  [${isCorrect ? "✔ 正確" : "✖ 錯誤"}]\n`;
+                txtDetails += `------------------------------------\n`;
+            });
+
+            const score = Math.round((correctCount / totalQuestions) * 100);
+            
+            let remark = "";
+            if (score >= 85) {
+                remark = "極致卓越 (Pythonista)";
+            } else if (score >= 70) {
+                remark = "表現優良";
+            } else if (score >= 60) {
+                remark = "中階及格";
+            } else {
+                remark = "觀念需再加強";
+            }
+            
+            txtContent += `正確題數： ${correctCount} 題\n`;
+            txtContent += `總成績： ${score} 分\n`;
+            txtContent += `學習評估： ${remark}\n`;
+            txtContent += txtDetails;
+            
+            currentResult = { name: name, id: id, txtContent: txtContent };
+            
+            // 記錄該學號已測驗
+            completedStudents.add(id);
+
+            const summaryHtml = `
+                <p><strong>學員姓名：</strong> ${name}</p>
+                <p><strong>學員學號：</strong> ${id}</p>
+                <p><strong>測驗級別：</strong> Python 中階 (限時 50 分鐘)</p>
+                <p><strong>測驗題數：</strong> ${totalQuestions} 題 (單選)</p>
+                <p><strong>正確題數：</strong> ${correctCount} 題</p>
+                <p style="font-size: 1.3em; margin-top: 10px;">
+                    <strong>最終總成績：</strong> <span style="color: #27ae60; font-weight: bold; font-size: 1.2em;">${score} 分</span>
+                </p>
+                <p style="font-size: 1.1em; color: #d35400; font-weight: bold;">
+                    <strong>學習評估：</strong> ${remark}
+                </p>
+            `;
+            document.getElementById('summaryArea').innerHTML = summaryHtml;
+
+            const quizContainer = document.getElementById('quizContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            quizContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.getElementById('downloadTxtBtn').addEventListener('click', function() {
+            if (!currentResult.txtContent) return;
+            const blob = new Blob([currentResult.txtContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentResult.id + '_' + currentResult.name + '_Python中階評鑑成績單.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            const element = document.getElementById('pdfContent');
+            const opt = {
+                margin:       10,
+                filename:     currentResult.id + '_' + currentResult.name + '_Python中階評鑑成績單.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            document.getElementById('quizForm').reset();
+            const quizContainer = document.getElementById('quizContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            resultContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

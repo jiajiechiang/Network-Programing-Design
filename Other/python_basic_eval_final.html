@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 初階學習成效測驗</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Microsoft JhengHei', Arial, sans-serif; 
+            background-color: #f4f7f6; 
+            color: #333; 
+            line-height: 1.6; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #2c3e50; 
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .info-section { 
+            margin-bottom: 30px; 
+            padding-top: 10px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .info-section div {
+            display: flex;
+            align-items: center;
+        }
+        .info-section label { 
+            font-weight: bold; 
+            margin-right: 10px; 
+        }
+        .info-section input { 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 1em;
+        }
+        .question { 
+            margin-bottom: 20px; 
+            padding: 20px; 
+            background: #fdfdfd; 
+            border: 1px solid #e1e1e1; 
+            border-radius: 5px; 
+            border-left: 5px solid #3498db; 
+        }
+        .question p { 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            margin-top: 0; 
+        }
+        .options { 
+            list-style: none; 
+            padding: 0; 
+        }
+        .options li { 
+            margin-bottom: 10px; 
+        }
+        .options label { 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            padding: 5px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .options label:hover {
+            background: #f0f8ff;
+        }
+        .options input[type="radio"] { 
+            margin-right: 10px; 
+            transform: scale(1.2); 
+        }
+        
+        .main-submit-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 18px; 
+            background-color: #27ae60; 
+            color: white; 
+            border: none; 
+            font-size: 1.4em; 
+            font-weight: bold;
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            margin-top: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .main-submit-btn:hover { 
+            background-color: #2ecc71; 
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            color: white; 
+            border: none; 
+            font-size: 1.2em; 
+            font-weight: bold;
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            min-width: 200px;
+            text-align: center;
+        }
+        .txt-btn { background-color: #f39c12; }
+        .txt-btn:hover { background-color: #e67e22; }
+        .pdf-btn { background-color: #e74c3c; }
+        .pdf-btn:hover { background-color: #c0392b; }
+        .restart-btn { background-color: #3498db; }
+        .restart-btn:hover { background-color: #2980b9; }
+
+        .hidden { display: none !important; }
+        
+        .pdf-content-wrapper { padding: 20px; }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .result-table th, .result-table td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+        }
+        .result-table th { background-color: #ecf0f1; }
+        .result-table td.text-left { text-align: left; }
+        .correct-text { color: #27ae60; font-weight: bold; }
+        .wrong-text { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container" id="quizContainer">
+        <h1>Python 初階學習成效測驗</h1>
+        <form id="quizForm">
+            <div class="info-section">
+                <div>
+                    <label for="studentName">學員姓名：</label>
+                    <input type="text" id="studentName" placeholder="請輸入姓名">
+                </div>
+                <div>
+                    <label for="studentId">學號：</label>
+                    <input type="text" id="studentId" placeholder="請輸入學號">
+                </div>
+            </div>
+            
+            <p style="color: #e67e22; font-weight: bold; text-align: center;">※ 未作答的題目會自動以「未作答」計算。</p>
+            
+            <div id="questionsArea">
+
+            <div class="question">
+                <p>1. Python 中用來輸出內容到螢幕上的函式是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="0">
+                            print()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="1">
+                            echo()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="2">
+                            output()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q0" value="3">
+                            write()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>2. 下列何者不是 Python 的保留字 (Keyword)？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="0">
+                            if
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="1">
+                            def
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="2">
+                            val
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q1" value="3">
+                            import
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>3. Python 檔案的標準副檔名是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="0">
+                            .pt
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="1">
+                            .py
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="2">
+                            .pyt
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q2" value="3">
+                            .python
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>4. Python 中用來寫單行註解的符號是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="0">
+                            //
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="1">
+                            /*
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="2">
+                            --
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q3" value="3">
+                            #
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>5. 下列哪一種括號用來建立「串列 (List)」？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="0">
+                            ()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="1">
+                            {}
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="2">
+                            []
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q4" value="3">
+                            &lt;&gt;
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>6. 下列哪一種括號用來建立「字典 (Dictionary)」？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="0">
+                            ()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="1">
+                            {}
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="2">
+                            []
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q5" value="3">
+                            &lt;&gt;
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>7. Python 中布林值 (Boolean) 的真與假如何表示？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="0">
+                            true/false
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="1">
+                            True/False
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="2">
+                            T/F
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q6" value="3">
+                            1/0
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>8. `type(5)` 的回傳結果為何？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="0">
+                            &lt;class 'int'&gt;
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="1">
+                            &lt;class 'float'&gt;
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="2">
+                            &lt;class 'str'&gt;
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q7" value="3">
+                            &lt;class 'bool'&gt;
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>9. `type(3.14)` 的回傳結果為何？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="0">
+                            int
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="1">
+                            float
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="2">
+                            double
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q8" value="3">
+                            decimal
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>10. 下列何者可以宣告字串？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="0">
+                            '字串'
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="1">
+                            "字串"
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="2">
+                            兩者皆可
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q9" value="3">
+                            皆不行
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>11. Python 中的次方運算子是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="0">
+                            ^
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="1">
+                            **
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="2">
+                            pow
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q10" value="3">
+                            //
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>12. `10 // 3` 的結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="0">
+                            3.33
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="1">
+                            3
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="2">
+                            1
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q11" value="3">
+                            0
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>13. Python 中的等於比較運算子是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="0">
+                            =
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="1">
+                            ==
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="2">
+                            ===
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q12" value="3">
+                            =&gt;
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>14. Python 中的不等於運算子是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="0">
+                            !=
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="1">
+                            &lt;&gt;
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="2">
+                            not=
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q13" value="3">
+                            !
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>15. 用來定義函式 (Function) 的關鍵字是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="0">
+                            function
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="1">
+                            func
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="2">
+                            def
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q14" value="3">
+                            define
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>16. 函式回傳結果使用的關鍵字是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="0">
+                            return
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="1">
+                            break
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="2">
+                            continue
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q15" value="3">
+                            yield
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>17. 引入外部模組使用的關鍵字是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="0">
+                            include
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="1">
+                            require
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="2">
+                            import
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q16" value="3">
+                            using
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>18. 用來讀取使用者鍵盤輸入的函式是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="0">
+                            scanf()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="1">
+                            cin
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="2">
+                            read()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q17" value="3">
+                            input()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>19. 取得串列長度 (元素個數) 的函式是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="0">
+                            size()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="1">
+                            length()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="2">
+                            len()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q18" value="3">
+                            count()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>20. 串列中第一個元素的索引值 (Index) 是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="0">
+                            1
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="1">
+                            0
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="2">
+                            -1
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q19" value="3">
+                            無索引
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>21. 哪一個方法可以在串列「最尾端」新增元素？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="0">
+                            add()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="1">
+                            insert()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="2">
+                            append()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q20" value="3">
+                            push()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>22. 將字串轉換為整數的函式是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="0">
+                            int()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="1">
+                            str()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="2">
+                            float()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q21" value="3">
+                            parse()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>23. 下列哪一個是迴圈關鍵字？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="0">
+                            for
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="1">
+                            loop
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="2">
+                            repeat
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q22" value="3">
+                            iterate
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>24. 產生數字序列常用的函式是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="0">
+                            sequence()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="1">
+                            list()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="2">
+                            range()
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q23" value="3">
+                            generate()
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>25. 類別 (Class) 定義的關鍵字是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="0">
+                            struct
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="1">
+                            object
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="2">
+                            class
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q24" value="3">
+                            def
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>26. `True and False` 的結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="0">
+                            True
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="1">
+                            False
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="2">
+                            None
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q25" value="3">
+                            Error
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>27. `True or False` 的結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="0">
+                            True
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="1">
+                            False
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="2">
+                            None
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q26" value="3">
+                            Error
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>28. 哪一個符號用來格式化字串 (f-string) 的開頭？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="0">
+                            f
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="1">
+                            r
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="2">
+                            b
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q27" value="3">
+                            u
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>29. `len('Python')` 的結果是？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="0">
+                            5
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="1">
+                            6
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="2">
+                            7
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q28" value="3">
+                            Error
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="question">
+                <p>30. 若要跳出目前的迴圈，要使用哪個關鍵字？</p>
+                <ul class="options">
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="0">
+                            stop
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="1">
+                            exit
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="2">
+                            break
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="radio" name="q29" value="3">
+                            continue
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            </div>
+
+            <button type="button" class="main-submit-btn" id="submitBtn">✅ 交卷並計算成績</button>
+        </form>
+    </div>
+
+    <div class="container hidden" id="resultContainer">
+        <div id="pdfContent" class="pdf-content-wrapper">
+            <h1 style="text-align:center; color:#2c3e50; border-bottom: 2px solid #3498db; padding-bottom:10px; margin-bottom: 20px;">
+                Python 初階學習成效評鑑成績單
+            </h1>
+            <div id="summaryArea" style="font-size: 1.2em; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+            </div>
+            
+            <!-- 修改了表格標題，移除了標準答案欄位 -->
+            <h3 style="margin-top: 20px; color: #34495e;">📝 考生作答明細：</h3>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">題號</th>
+                        <th style="width: 55%; text-align: left;">題目</th>
+                        <th style="width: 25%;">考生作答</th>
+                        <th style="width: 12%;">結果</th>
+                    </tr>
+                </thead>
+                <tbody id="detailTableBody">
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="btn-group">
+            <button type="button" id="downloadTxtBtn" class="action-btn txt-btn">📄 下載 TXT 成績單</button>
+            <button type="button" id="downloadPdfBtn" class="action-btn pdf-btn">📥 下載 PDF 成績單</button>
+            <button type="button" id="restartBtn" class="action-btn restart-btn">🔄 重新測驗</button>
+        </div>
+    </div>
+
+    <script>
+        const questionsData = [{"q": "1. Python 中用來輸出內容到螢幕上的函式是？", "options": ["print()", "echo()", "output()", "write()"], "ans": 0}, {"q": "2. 下列何者不是 Python 的保留字 (Keyword)？", "options": ["if", "def", "val", "import"], "ans": 2}, {"q": "3. Python 檔案的標準副檔名是？", "options": [".pt", ".py", ".pyt", ".python"], "ans": 1}, {"q": "4. Python 中用來寫單行註解的符號是？", "options": ["//", "/*", "--", "#"], "ans": 3}, {"q": "5. 下列哪一種括號用來建立「串列 (List)」？", "options": ["()", "{}", "[]", "<>"], "ans": 2}, {"q": "6. 下列哪一種括號用來建立「字典 (Dictionary)」？", "options": ["()", "{}", "[]", "<>"], "ans": 1}, {"q": "7. Python 中布林值 (Boolean) 的真與假如何表示？", "options": ["true/false", "True/False", "T/F", "1/0"], "ans": 1}, {"q": "8. `type(5)` 的回傳結果為何？", "options": ["<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'bool'>"], "ans": 0}, {"q": "9. `type(3.14)` 的回傳結果為何？", "options": ["int", "float", "double", "decimal"], "ans": 1}, {"q": "10. 下列何者可以宣告字串？", "options": ["'字串'", "\"字串\"", "兩者皆可", "皆不行"], "ans": 2}, {"q": "11. Python 中的次方運算子是？", "options": ["^", "**", "pow", "//"], "ans": 1}, {"q": "12. `10 // 3` 的結果是？", "options": ["3.33", "3", "1", "0"], "ans": 1}, {"q": "13. Python 中的等於比較運算子是？", "options": ["=", "==", "===", "=>"], "ans": 1}, {"q": "14. Python 中的不等於運算子是？", "options": ["!=", "<>", "not=", "!"], "ans": 0}, {"q": "15. 用來定義函式 (Function) 的關鍵字是？", "options": ["function", "func", "def", "define"], "ans": 2}, {"q": "16. 函式回傳結果使用的關鍵字是？", "options": ["return", "break", "continue", "yield"], "ans": 0}, {"q": "17. 引入外部模組使用的關鍵字是？", "options": ["include", "require", "import", "using"], "ans": 2}, {"q": "18. 用來讀取使用者鍵盤輸入的函式是？", "options": ["scanf()", "cin", "read()", "input()"], "ans": 3}, {"q": "19. 取得串列長度 (元素個數) 的函式是？", "options": ["size()", "length()", "len()", "count()"], "ans": 2}, {"q": "20. 串列中第一個元素的索引值 (Index) 是？", "options": ["1", "0", "-1", "無索引"], "ans": 1}, {"q": "21. 哪一個方法可以在串列「最尾端」新增元素？", "options": ["add()", "insert()", "append()", "push()"], "ans": 2}, {"q": "22. 將字串轉換為整數的函式是？", "options": ["int()", "str()", "float()", "parse()"], "ans": 0}, {"q": "23. 下列哪一個是迴圈關鍵字？", "options": ["for", "loop", "repeat", "iterate"], "ans": 0}, {"q": "24. 產生數字序列常用的函式是？", "options": ["sequence()", "list()", "range()", "generate()"], "ans": 2}, {"q": "25. 類別 (Class) 定義的關鍵字是？", "options": ["struct", "object", "class", "def"], "ans": 2}, {"q": "26. `True and False` 的結果是？", "options": ["True", "False", "None", "Error"], "ans": 1}, {"q": "27. `True or False` 的結果是？", "options": ["True", "False", "None", "Error"], "ans": 0}, {"q": "28. 哪一個符號用來格式化字串 (f-string) 的開頭？", "options": ["f", "r", "b", "u"], "ans": 0}, {"q": "29. `len('Python')` 的結果是？", "options": ["5", "6", "7", "Error"], "ans": 1}, {"q": "30. 若要跳出目前的迴圈，要使用哪個關鍵字？", "options": ["stop", "exit", "break", "continue"], "ans": 2}];
+        let currentResult = {};
+        
+        // 儲存已測驗過的學號，防止重複測試
+        let completedStudents = new Set();
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            
+            const nameInput = document.getElementById('studentName');
+            const idInput = document.getElementById('studentId');
+            const name = nameInput.value.trim();
+            const id = idInput.value.trim();
+            
+            if (!name || !id) {
+                alert('請先在最上方填寫「姓名」與「學號」，才能交卷喔！');
+                if(!name) nameInput.focus();
+                else if(!id) idInput.focus();
+                return;
+            }
+            
+            // 檢查是否重複測試
+            if (completedStudents.has(id)) {
+                alert('學號 ' + id + ' 已經完成過測驗，系統規定僅能受測一次！');
+                return;
+            }
+
+            let correctCount = 0;
+            const totalQuestions = questionsData.length;
+            const detailTableBody = document.getElementById('detailTableBody');
+            detailTableBody.innerHTML = '';
+            
+            let txtContent = `Python 初階學習成效評鑑成績單\n`;
+            txtContent += `====================================\n`;
+            txtContent += `學員姓名： ${name}\n`;
+            txtContent += `學員學號： ${id}\n`;
+            txtContent += `測驗題數： ${totalQuestions} 題 (單選)\n`;
+
+            let txtDetails = `\n📝 考生作答明細：\n`;
+            txtDetails += `====================================\n`;
+
+            questionsData.forEach((q, index) => {
+                const selectedOption = document.querySelector('input[name="q' + index + '"]:checked');
+                
+                const questionTextEscaped = q.q.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                
+                let userAnswerText = "未作答";
+                let isCorrect = false;
+
+                if (selectedOption) {
+                    const selectedVal = parseInt(selectedOption.value);
+                    userAnswerText = q.options[selectedVal].replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    if (selectedVal === q.ans) {
+                        isCorrect = true;
+                        correctCount++;
+                    }
+                }
+
+                const resultIcon = isCorrect ? '<span class="correct-text">✔</span>' : '<span class="wrong-text">✖</span>';
+                
+                // HTML 表格，不顯示標準答案
+                const rowHtml = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="text-left">${questionTextEscaped}</td>
+                        <td class="${isCorrect ? 'correct-text' : 'wrong-text'}">${userAnswerText}</td>
+                        <td>${resultIcon}</td>
+                    </tr>
+                `;
+                detailTableBody.insertAdjacentHTML('beforeend', rowHtml);
+                
+                // TXT 明細，不顯示標準答案
+                txtDetails += `題號： ${index + 1}\n`;
+                txtDetails += `題目： ${q.q}\n`;
+                txtDetails += `考生作答： ${userAnswerText !== "未作答" ? q.options[parseInt(selectedOption ? selectedOption.value : 0)] : "未作答"}  [${isCorrect ? "✔ 正確" : "✖ 錯誤"}]\n`;
+                txtDetails += `------------------------------------\n`;
+            });
+
+            const score = Math.round((correctCount / totalQuestions) * 100);
+            const scoreColor = score >= 60 ? '#27ae60' : '#e74c3c';
+            
+            txtContent += `正確題數： ${correctCount} 題\n`;
+            txtContent += `總成績： ${score} 分\n`;
+            txtContent += txtDetails;
+            
+            currentResult = { name: name, id: id, txtContent: txtContent };
+            
+            // 記錄該學號已測驗
+            completedStudents.add(id);
+
+            const summaryHtml = `
+                <p><strong>學員姓名：</strong> ${name}</p>
+                <p><strong>學員學號：</strong> ${id}</p>
+                <p><strong>測驗題數：</strong> ${totalQuestions} 題 (單選)</p>
+                <p><strong>正確題數：</strong> ${correctCount} 題</p>
+                <p style="font-size: 1.3em; margin-top: 10px;">
+                    <strong>總成績：</strong> <span style="color: ${scoreColor}; font-weight: bold; font-size: 1.2em;">${score} 分</span>
+                </p>
+            `;
+            document.getElementById('summaryArea').innerHTML = summaryHtml;
+
+            const quizContainer = document.getElementById('quizContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            quizContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.getElementById('downloadTxtBtn').addEventListener('click', function() {
+            if (!currentResult.txtContent) return;
+            const blob = new Blob([currentResult.txtContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentResult.id + '_' + currentResult.name + '_Python評鑑成績單.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            const element = document.getElementById('pdfContent');
+            const opt = {
+                margin:       10,
+                filename:     currentResult.id + '_' + currentResult.name + '_Python評鑑成績單.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            document.getElementById('quizForm').reset();
+            const quizContainer = document.getElementById('quizContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            resultContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
